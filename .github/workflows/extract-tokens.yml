@@ -16,6 +16,8 @@ on:
 jobs:
   extract:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -23,19 +25,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-      - name: Install dependencies
-        run: |
-          cd tools
-          npm install
       - name: Find changed client configs and extract tokens
         if: github.event_name == 'push'
         run: |
-          cd tools
-          # Find all config.json files that changed in this push
           CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'clients/.*/config.json' || true)
           if [ -z "$CHANGED" ]; then
             echo "No client config changes detected"
@@ -43,16 +35,15 @@ jobs:
           fi
           for CONFIG in $CHANGED; do
             CLIENT=$(echo $CONFIG | sed 's/clients\///' | sed 's/\/config.json//')
-            URL=$(node -e "const c=require('../$CONFIG'); console.log(c.extractUrl || c.url)")
+            URL=$(node -e "const c=require('./$CONFIG'); console.log(c.extractUrl || c.url)")
             echo "Extracting tokens for $CLIENT from $URL"
-            node extract-tokens.js "$URL" "$CLIENT"
+            node tools/extract-tokens.js "$URL" "$CLIENT"
           done
       - name: Manual trigger extraction
         if: github.event_name == 'workflow_dispatch'
         run: |
-          cd tools
           echo "Extracting tokens for ${{ inputs.client }} from ${{ inputs.url }}"
-          node extract-tokens.js "${{ inputs.url }}" "${{ inputs.client }}"
+          node tools/extract-tokens.js "${{ inputs.url }}" "${{ inputs.client }}"
       - name: Commit and push extracted tokens
         run: |
           git config --local user.email "cro-os-bot@users.noreply.github.com"
