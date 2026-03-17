@@ -1,0 +1,11 @@
+{
+  "name": "cro-os-tools",
+  "version": "1.0.0",
+  "description": "CRO OS automation tools",
+  "scripts": {
+    "extract": "node extract-tokens.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+}
