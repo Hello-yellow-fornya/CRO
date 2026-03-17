@@ -1,0 +1,9 @@
+{
+  "client": "powerleague",
+  "url": "https://www.powerleague.com",
+  "extractUrl": "https://www.powerleague.com/football-birthday-party",
+  "vertical": "leisure-sports",
+  "vwoImplemented": true,
+  "ga4Implemented": true,
+  "notes": "Use football-birthday-party page for token extraction — most representative of design system"
+}

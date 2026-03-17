@@ -1,0 +1,9 @@
+{
+  "client": "koalify",
+  "url": "https://koalify.com.au",
+  "extractUrl": "https://koalify.com.au",
+  "vertical": "financial-services",
+  "vwoImplemented": true,
+  "ga4Implemented": true,
+  "notes": "Extract from homepage — purchase and refinance pages blocked by robots.txt"
+}
