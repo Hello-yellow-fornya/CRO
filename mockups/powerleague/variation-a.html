@@ -1,943 +1,898 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Birthday Parties - Powerleague</title>
+    <title>Football Birthday Parties | Powerleague</title>
     <style>
+        /* Core Design System - Powerleague Tokens */
+        :root {
+            --powerleague-green: #00A651;
+            --dark-navy: #0D1B2A;
+            --white: #FFFFFF;
+            --light-grey: #F4F4F4;
+            --text-grey: #666;
+            --black: #000000;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: Arial, sans-serif;
-            font-size: 16px;
+            font-family: 'League Spartan', Arial, sans-serif;
             line-height: 1.6;
             color: #333;
+            background: white;
         }
-        
+
+        /* Annotation Bar */
         .annotation-bar {
-            background: #ff6b35;
+            background: #FF6B35;
             color: white;
             padding: 12px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 10000;
             font-size: 14px;
-            transition: transform 0.3s ease;
-        }
-        
-        .annotation-bar.hidden {
-            transform: translateY(-100%);
-        }
-        
-        .annotation-toggle {
-            position: fixed;
-            top: 10px;
-            right: 20px;
-            background: #fff;
-            color: #ff6b35;
-            border: 2px solid #ff6b35;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 10001;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .annotation-list {
-            margin-top: 8px;
-            font-size: 13px;
-        }
-        
-        .annotation-list ul {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .annotation-list li {
-            background: rgba(255,255,255,0.1);
-            padding: 4px 8px;
-            border-radius: 3px;
-        }
-        
-        .page-content {
-            margin-top: 120px;
-        }
-        
-        .annotation-bar.hidden + .page-content {
-            margin-top: 0;
-        }
-        
-        /* Header */
-        .header {
-            background: #0D1B2A;
-            color: white;
-            padding: 15px 0;
-        }
-        
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #00A651;
-        }
-        
-        .nav {
-            display: flex;
-            gap: 30px;
-        }
-        
-        .nav a {
+
+        .annotation-toggle {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            text-decoration: none;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
         }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" fill="%2300A651"><rect width="1200" height="600" fill="%23228B22"/><circle cx="200" cy="300" r="100" fill="white" opacity="0.1"/><circle cx="600" cy="150" r="80" fill="white" opacity="0.1"/><circle cx="1000" cy="400" r="120" fill="white" opacity="0.1"/></svg>');
-            background-size: cover;
-            background-position: center;
+
+        .annotations-hidden .annotation {
+            display: none !important;
+        }
+
+        .annotation {
+            background: rgba(255,107,53,0.9);
             color: white;
-            padding: 60px 0;
-            text-align: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 8px 0;
+            border-left: 4px solid #FF6B35;
         }
-        
-        .hero-content {
+
+        /* Header */
+        .header {
+            background: var(--dark-navy);
+            padding: 15px 0;
+        }
+
+        .nav-container {
             max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 0 20px;
         }
-        
-        .hero-badge {
-            background: #00A651;
+
+        .logo {
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-        
-        .hero h1 {
-            font-size: 48px;
             font-weight: 900;
+            font-size: 24px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 20px;
-            line-height: 1.2;
         }
-        
-        .hero-subheading {
-            font-size: 20px;
-            margin-bottom: 30px;
-            color: #ccc;
-        }
-        
-        .social-proof-hero {
-            background: rgba(0,166,81,0.1);
-            border: 2px solid #00A651;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 30px 0;
-            text-align: center;
-        }
-        
-        .social-proof-stat {
-            font-size: 36px;
-            font-weight: 900;
-            color: #00A651;
-        }
-        
-        .social-proof-text {
-            font-size: 18px;
-            margin-top: 8px;
-        }
-        
-        /* Location Finder */
-        .location-finder {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            margin: 40px 0;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .location-finder h3 {
-            color: #0D1B2A;
-            font-size: 24px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .location-form {
+
+        .nav-links {
             display: flex;
-            gap: 12px;
-            align-items: stretch;
+            list-style: none;
+            gap: 30px;
         }
-        
-        .location-input {
-            flex: 1;
-            padding: 16px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        
-        .location-input:focus {
-            outline: none;
-            border-color: #00A651;
-        }
-        
-        .location-btn {
-            background: #00A651;
+
+        .nav-links a {
             color: white;
-            border: none;
-            padding: 16px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            text-decoration: none;
+            font-weight: 600;
             text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        
-        .location-btn:hover {
-            background: #008a44;
-        }
-        
-        .use-location {
-            text-align: center;
-            margin-top: 12px;
-        }
-        
-        .use-location button {
-            background: none;
-            border: none;
-            color: #00A651;
-            text-decoration: underline;
-            cursor: pointer;
             font-size: 14px;
-        }
-        
-        .location-result {
-            margin-top: 20px;
-            padding: 16px;
-            background: #f0f8f0;
-            border-radius: 8px;
-            border-left: 4px solid #00A651;
-            display: none;
-        }
-        
-        .location-result.show {
-            display: block;
-        }
-        
-        /* Packages Section */
-        .packages {
-            background: #f8f9fa;
-            padding: 80px 0;
-        }
-        
-        .packages-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .section-badge {
-            background: #00A651;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            margin-bottom: 16px;
-        }
-        
-        .section-header h2 {
-            font-size: 36px;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #0D1B2A;
             letter-spacing: 1px;
         }
-        
-        .packages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .package-card {
-            background: white;
-            border-radius: 16px;
-            padding: 32px 24px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            border: 2px solid transparent;
-        }
-        
-        .package-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-        }
-        
-        .package-card.featured {
-            border-color: #00A651;
-            transform: scale(1.05);
-        }
-        
-        .package-card.featured:hover {
-            transform: scale(1.05) translateY(-4px);
-        }
-        
-        .popular-badge {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #00A651;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .package-name {
-            font-size: 24px;
-            font-weight: bold;
-            color: #0D1B2A;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-        }
-        
-        .package-price {
-            font-size: 32px;
-            font-weight: 900;
-            color: #00A651;
-            margin-bottom: 8px;
-        }
-        
-        .package-price-per {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .package-highlight {
-            background: #e8f5e8;
-            color: #00A651;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .package-features {
-            text-align: left;
-            margin-bottom: 32px;
-        }
-        
-        .package-features ul {
-            list-style: none;
-        }
-        
-        .package-features li {
-            padding: 8px 0;
-            position: relative;
-            padding-left: 24px;
-            font-size: 14px;
-            color: #555;
-        }
-        
-        .package-features li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #00A651;
-            font-weight: bold;
-        }
-        
-        .package-cta {
-            background: #00A651;
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            width: 100%;
-        }
-        
-        .package-cta:hover {
-            background: #008a44;
-        }
-        
-        .split-payment-note {
-            margin-top: 12px;
-            font-size: 12px;
-            color: #666;
-            font-style: italic;
-        }
-        
-        /* Trust Signals */
-        .trust-section {
-            background: white;
-            padding: 60px 0;
-        }
-        
-        .trust-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .trust-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 60px;
-        }
-        
-        .trust-item {
-            text-align: center;
-        }
-        
-        .trust-icon {
-            width: 64px;
-            height: 64px;
-            background: #00A651;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 24px;
-            color: white;
-        }
-        
-        .trust-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #0D1B2A;
-            margin-bottom: 8px;
-        }
-        
-        .trust-description {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* Testimonials */
-        .testimonials {
-            background: #f8f9fa;
-            padding: 60px 0;
-        }
-        
-        .testimonials-content {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .testimonial {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-        }
-        
-        .testimonial-text {
-            font-style: italic;
-            margin-bottom: 16px;
-            color: #555;
-        }
-        
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .testimonial-avatar {
-            width: 48px;
-            height: 48px;
-            background: #00A651;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .testimonial-details h4 {
-            font-weight: bold;
-            color: #0D1B2A;
-            margin-bottom: 4px;
-        }
-        
-        .testimonial-meta {
-            font-size: 12px;
-            color: #666;
-        }
-        
+
         /* Mobile Sticky CTA */
         .mobile-sticky-cta {
+            display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: #00A651;
-            padding: 16px 20px;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 -4px 16px rgba(0,0,0,0.2);
+            background: var(--powerleague-green);
+            padding: 15px 20px;
+            z-index: 999;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
-        
-        .mobile-sticky-cta button {
-            background: white;
-            color: #00A651;
-            border: none;
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
+
+        .mobile-sticky-btn {
             width: 100%;
+            background: white;
+            color: var(--powerleague-green);
+            border: none;
+            padding: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
         }
-        
-        /* Footer */
-        .footer {
-            background: #0D1B2A;
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(13, 27, 42, 0.7), rgba(13, 27, 42, 0.7)), 
+                        url('https://www.powerleague.com/wp-content/uploads/2023/02/2Y8A7113-1024x681-1.webp');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 0;
             color: white;
-            padding: 60px 0 40px;
+            text-align: center;
+            position: relative;
         }
-        
-        .footer-content {
+
+        .hero-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
-        
-        .brand-partners {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 40px;
-            border-bottom: 1px solid #333;
-        }
-        
-        .partners-title {
-            font-size: 18px;
-            margin-bottom: 24px;
-            color: #ccc;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        
-        .partners-logos {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-        
-        .partner-logo {
-            color: #666;
+
+        .hero-badge {
+            background: var(--powerleague-green);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
             font-size: 14px;
-            font-weight: bold;
-            padding: 8px 16px;
-            border: 1px solid #333;
-            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 20px;
         }
-        
-        .footer-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            margin-bottom: 20px;
         }
-        
-        .footer-section h4 {
+
+        .hero-subtitle {
+            font-size: 20px;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .social-proof-hero {
+            background: rgba(0, 166, 81, 0.15);
+            border: 2px solid var(--powerleague-green);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+
+        .stars {
+            color: #FFD700;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-stat {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--powerleague-green);
+            margin-bottom: 5px;
+        }
+
+        .recommendation-text {
             font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            color: #00A651;
-        }
-        
-        .footer-section ul {
-            list-style: none;
-        }
-        
-        .footer-section li {
-            margin-bottom: 8px;
-        }
-        
-        .footer-section a {
-            color: #ccc;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        
-        .footer-section a:hover {
             color: white;
         }
-        
+
+        /* Location Finder */
+        .location-finder {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 40px auto 0;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .location-title {
+            color: var(--dark-navy);
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .location-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .location-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #E5E5E5;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .location-btn {
+            background: var(--powerleague-green);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 5px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .location-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #F0FFF4;
+            border-left: 4px solid var(--powerleague-green);
+            border-radius: 5px;
+            display: none;
+        }
+
+        .location-result.show {
+            display: block;
+        }
+
+        .venue-info {
+            color: var(--dark-navy);
+            font-weight: 600;
+        }
+
+        .next-available {
+            color: var(--powerleague-green);
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* Packages Section */
+        .packages {
+            padding: 80px 0;
+            background: var(--light-grey);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-badge {
+            color: var(--powerleague-green);
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 42px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--dark-navy);
+            margin-bottom: 20px;
+        }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .package-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .package-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .package-card.featured {
+            border: 3px solid var(--powerleague-green);
+            transform: scale(1.05);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--powerleague-green);
+            color: white;
+            padding: 8px 25px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .package-name {
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--dark-navy);
+            margin-bottom: 15px;
+        }
+
+        .package-price {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--powerleague-green);
+            margin-bottom: 5px;
+        }
+
+        .package-price-unit {
+            font-size: 14px;
+            color: var(--text-grey);
+            margin-bottom: 20px;
+        }
+
+        .package-highlight {
+            background: rgba(0, 166, 81, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .package-highlight-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--powerleague-green);
+        }
+
+        .package-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .package-features li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-grey);
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .package-features li:last-child {
+            border-bottom: none;
+        }
+
+        .package-btn {
+            width: 100%;
+            background: var(--powerleague-green);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .package-btn:hover {
+            background: #008A44;
+        }
+
+        .split-payment-info {
+            background: #E8F5E8;
+            border: 1px solid var(--powerleague-green);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .split-payment-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark-navy);
+            margin-bottom: 10px;
+        }
+
+        .split-payment-text {
+            color: var(--text-grey);
+            font-size: 14px;
+        }
+
+        /* Trust Section */
+        .trust-section {
+            background: white;
+            padding: 60px 0;
+        }
+
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            align-items: center;
+        }
+
+        .trust-stat {
+            text-align: center;
+        }
+
+        .trust-number {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--powerleague-green);
+            margin-bottom: 10px;
+        }
+
+        .trust-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-grey);
+            font-weight: 600;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            background: var(--light-grey);
+            padding: 80px 0;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .testimonial-stars {
+            color: #FFD700;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--text-grey);
+        }
+
+        .testimonial-author {
+            font-weight: 700;
+            color: var(--dark-navy);
+        }
+
+        .testimonial-details {
+            font-size: 14px;
+            color: var(--text-grey);
+        }
+
+        /* FAQ Section */
+        .faq {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #E5E5E5;
+            padding: 25px 0;
+        }
+
+        .faq-question {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark-navy);
+            margin-bottom: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-answer {
+            color: var(--text-grey);
+            line-height: 1.8;
+        }
+
+        /* Brand Partners */
+        .brand-partners {
+            background: var(--light-grey);
+            padding: 60px 0;
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 30px;
+            align-items: center;
+        }
+
+        .partner-logo {
+            height: 40px;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .partner-logo:hover {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-navy);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .hero h1 {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
                 font-size: 32px;
             }
-            
-            .hero-subheading {
+
+            .hero-subtitle {
                 font-size: 18px;
             }
-            
-            .social-proof-stat {
-                font-size: 28px;
-            }
-            
-            .location-form {
-                flex-direction: column;
-            }
-            
+
             .packages-grid {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
-            
+
             .package-card.featured {
                 transform: none;
+                order: -1;
             }
-            
+
+            .location-input-group {
+                flex-direction: column;
+            }
+
+            .location-btn {
+                padding: 15px;
+            }
+
+            .trust-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .partners-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
             .mobile-sticky-cta {
                 display: block;
             }
-            
-            .page-content {
-                padding-bottom: 80px;
+
+            .section-title {
+                font-size: 28px;
             }
-            
-            .nav {
-                display: none;
-            }
-            
-            .partners-logos {
-                gap: 20px;
-            }
-            
-            .trust-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .annotation-bar {
-                padding: 8px 15px;
-                font-size: 12px;
-            }
-            
-            .annotation-list ul {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .page-content {
-                margin-top: 140px;
-            }
-            
-            .hero {
-                padding: 40px 0;
-            }
-            
-            .location-finder {
-                margin: 30px 20px;
-                padding: 20px;
-            }
-            
-            .packages {
-                padding: 60px 0;
+
+            body {
+                margin-bottom: 80px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="annotation-toggle" onclick="toggleAnnotations()">HIDE CHANGES</div>
-    
+    <!-- Annotation Bar -->
     <div class="annotation-bar">
-        <div><strong>🧪 BIG CRO Test - Primary Changes Applied:</strong></div>
-        <div class="annotation-list">
-            <ul>
-                <li><strong>Location First:</strong> Postcode finder moved to hero section</li>
-                <li><strong>Social Proof Placement:</strong> 93% recommendation stat moved to hero</li>
-                <li><strong>Package Hierarchy:</strong> "Most Popular" badge added to middle tier</li>
-                <li><strong>Mobile-First:</strong> Sticky CTA button for mobile users</li>
-                <li><strong>Trust Signals:</strong> Coach accreditation highlighted above packages</li>
-            </ul>
+        <div>
+            <strong>CRO Test Variation:</strong> 5 changes applied based on Leisure & Sports knowledge base
+        </div>
+        <button class="annotation-toggle" onclick="toggleAnnotations()">Toggle Annotations</button>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">Powerleague</div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#">Book Pitch</a></li>
+                    <li><a href="#">Kids Parties</a></li>
+                    <li><a href="#">Leagues</a></li>
+                    <li><a href="#">Holiday Camps</a></li>
+                    <li><a href="#">Venues</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Mobile Sticky CTA -->
+    <div class="mobile-sticky-cta">
+        <button class="mobile-sticky-btn">Find My Venue & Book</button>
+        <div class="annotation">
+            <strong>Principle 5 - Mobile-First:</strong> Sticky CTA button on mobile scroll. Knowledge base shows this typically increases mobile form starts by +12-20%.
         </div>
     </div>
 
-    <div class="page-content">
-        <header class="header">
-            <div class="header-content">
-                <div class="logo">POWERLEAGUE</div>
-                <nav class="nav">
-                    <a href="#">Find A Venue</a>
-                    <a href="#">Book A Pitch</a>
-                    <a href="#">Join A League</a>
-                    <a href="#">Kids</a>
-                    <a href="#">Corporate</a>
-                </nav>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-badge">Kids Birthday Parties</div>
+            <h1 class="hero-title">The Birthday They Will Never Forget</h1>
+            <p class="hero-subtitle">No stress. No planning. Just football and fun for your little superstar.</p>
+            
+            <div class="annotation">
+                <strong>Principle 7 - Hero Headline Clarity:</strong> Changed from generic brand headline to outcome-led "The birthday they will never forget". Knowledge base shows outcome-led headlines consistently outperform brand or product-focused ones.
             </div>
-        </header>
 
-        <section class="hero">
-            <div class="hero-content">
-                <div class="hero-badge">★ Rated #1 For Kids Parties</div>
-                <h1>The Birthday They'll Never Forget</h1>
-                <p class="hero-subheading">Professional coaching, pizza party & prizes - all sorted for you</p>
+            <!-- Social Proof in Hero -->
+            <div class="social-proof-hero">
+                <div class="stars">★★★★★</div>
+                <div class="recommendation-stat">93% of parents recommend us</div>
+                <div class="recommendation-text">Based on 2,500+ parties across 300+ venues</div>
+            </div>
+
+            <div class="annotation">
+                <strong>Principle 2 - Social Proof Placement:</strong> Moved 93% recommendation stat from below fold to hero section. Knowledge base shows trust signals have significantly higher impact at decision points than at bottom of page.
+            </div>
+
+            <!-- Location Finder - Now in Hero -->
+            <div class="location-finder">
+                <div class="location-title">Find Venues Near You First</div>
+                <div class="location-input-group">
+                    <input type="text" class="location-input" placeholder="Enter postcode (e.g. M1 4ET)" id="postcodeInput">
+                    <button class="location-btn" onclick="findVenues()">Find Venues</button>
+                </div>
+                <div class="location-result" id="locationResult">
+                    <div class="venue-info">✓ Manchester Printworks - 0.8 miles away</div>
+                    <div class="next-available">Next available Saturday: 23rd March 2026</div>
+                </div>
+            </div>
+
+            <div class="annotation">
+                <strong>Principle 1 - Location First:</strong> Moved location finder from after package selection to hero section. Knowledge base shows this typically increases form starts by +15-30%. Biggest source of bounce is unresolved location anxiety.
+            </div>
+        </div>
+    </section>
+
+    <!-- Packages Section -->
+    <section class="packages">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">Choose Your Package</div>
+                <h2 class="section-title">All-Inclusive Party Packages</h2>
+            </div>
+
+            <div class="packages-grid">
+                <!-- Pitch and Play Package -->
+                <div class="package-card">
+                    <div class="package-name">Pitch & Play</div>
+                    <div class="package-price">£9.95</div>
+                    <div class="package-price-unit">per child (min. 10 children)</div>
+                    <div class="package-highlight">
+                        <div class="package-highlight-text">Perfect for active fun</div>
+                    </div>
+                    <ul class="package-features">
+                        <li>2 hours of coached football</li>
+                        <li>Professional coach included</li>
+                        <li>All equipment provided</li>
+                        <li>Birthday certificate</li>
+                    </ul>
+                    <button class="package-btn">Select Pitch & Play</button>
+                </div>
+
+                <!-- Silver Strike Package - MOST POPULAR -->
+                <div class="package-card featured">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="package-name">Silver Strike</div>
+                    <div class="package-price">£18.50</div>
+                    <div class="package-price-unit">per child (min. 10 children)</div>
+                    <div class="package-highlight">
+                        <div class="package-highlight-text">Football + food + keepsakes</div>
+                    </div>
+                    <ul class="package-features">
+                        <li>2 hours of coached football</li>
+                        <li>Professional coach included</li>
+                        <li>Party food & drinks included</li>
+                        <li>Match Attax cards for everyone</li>
+                        <li>Birthday medal & certificate</li>
+                    </ul>
+                    <button class="package-btn">Select Silver Strike</button>
+                </div>
+
+                <div class="annotation">
+                    <strong>Principle 3 - Package Hierarchy:</strong> Added "Most Popular" badge to middle tier package. Knowledge base shows this typically increases package selection by +10-25% by guiding hesitant buyers and reducing decision paralysis.
+                </div>
+
+                <!-- Golden Boot Package -->
+                <div class="package-card">
+                    <div class="package-name">Golden Boot</div>
+                    <div class="package-price">£28.50</div>
+                    <div class="package-price-unit">per child (min. 10 children)</div>
+                    <div class="package-highlight">
+                        <div class="package-highlight-text">The full VIP experience</div>
+                    </div>
+                    <ul class="package-features">
+                        <li>2 hours of coached football</li>
+                        <li>Professional coach included</li>
+                        <li>Premium party food & drinks</li>
+                        <li>Match Attax cards & stickers</li>
+                        <li>Golden Boot trophy</li>
+                        <li>Professional party photos</li>
+                    </ul>
+                    <button class="package-btn">Select Golden Boot</button>
+                </div>
+            </div>
+
+            <!-- Split Payment Info -->
+            <div class="split-payment-info">
+                <div class="split-payment-title">💳 Split Payment Available</div>
+                <div class="split-payment-text">Pay £50 deposit now, remainder 7 days before your party</div>
+            </div>
+
+            <div class="annotation">
+                <strong>Principle 4 - Friction Reduction:</strong> Moved split payment option visibility from checkout to package selection. Knowledge base shows this reduces booking flow friction by making flexible payment clear upfront.
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Section -->
+    <section class="trust-section">
+        <div class="container">
+            <div class="trust-grid">
+                <div class="trust-stat">
+                    <div class="trust-number">10,000+</div>
+                    <div class="trust-label">Kids Parties Run</div>
+                </div>
+                <div class="trust-stat">
+                    <div class="trust-number">300+</div>
+                    <div class="trust-label">Venues Nationwide</div>
+                </div>
+                <div class="trust-stat">
+                    <div class="trust-number">★★★★★</div>
+                    <div class="trust-label">4.8/5 Rating</div>
+                </div>
+                <div class="trust-stat">
+                    <div class="trust-number">DBS</div>
+                    <div class="trust-label">Checked Coaches</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">What Parents Say</div>
+                <h2 class="section-title">Real Reviews From Real Parties</h2>
+            </div>
+            
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-text">"Absolutely brilliant! Jake had the best 8th birthday ever. The coach was fantastic with the kids and the food was perfect. Worth every penny."</div>
+                    <div class="testimonial-author">Sarah M.</div>
+                    <div class="testimonial-details">Son aged 8, Manchester Printworks</div>
+                </div>
                 
-                <div class="social-proof-hero">
-                    <div class="social-proof-stat">93%</div>
-                    <div class="social-proof-text">of parents recommend our birthday parties</div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-text">"So well organized! I didn't have to worry about anything. The kids were exhausted and happy - perfect party."</div>
+                    <div class="testimonial-author">Mark T.</div>
+                    <div class="testimonial-details">Daughter aged 7, Birmingham Central</div>
                 </div>
-
-                <div class="location-finder">
-                    <h3>Find Your Nearest Venue</h3>
-                    <div class="location-form">
-                        <input type="text" class="location-input" placeholder="Enter your postcode" id="postcodeInput">
-                        <button class="location-btn" onclick="findLocation()">Check Dates</button>
-                    </div>
-                    <div class="use-location">
-                        <button onclick="useMyLocation()">📍 Use my location</button>
-                    </div>
-                    <div class="location-result" id="locationResult">
-                        <strong>Great news!</strong> Manchester Powerleague is 2.3 miles away.<br>
-                        <strong>Next available Saturday:</strong> March 22nd, 2026
-                    </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <div class="testimonial-text">"Best decision ever! No mess at home, kids had a blast, and the Match Attax cards were a huge hit."</div>
+                    <div class="testimonial-author">Lisa K.</div>
+                    <div class="testimonial-details">Twin boys aged 9, London Bridge</div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="trust-section">
-            <div class="trust-content">
-                <div class="trust-grid">
-                    <div class="trust-item">
-                        <div class="trust-icon">🏆</div>
-                        <div class="trust-title">UEFA Licensed Coaches</div>
-                        <div class="trust-description">All our party coaches are professionally qualified and DBS checked</div>
-                    </div>
-                    <div class="trust-item">
-                        <div class="trust-icon">🏟️</div>
-                        <div class="trust-title">300+ Premium Venues</div>
-                        <div class="trust-description">Professional 3G pitches across the UK and Ireland</div>
-                    </div>
-                    <div class="trust-item">
-                        <div class="trust-icon">🎉</div>
-                        <div class="trust-title">10,000+ Parties Delivered</div>
-                        <div class="trust-description">Trusted by families nationwide since 2015</div>
-                    </div>
-                </div>
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">Questions?</div>
+                <h2 class="section-title">Everything You Need To Know</h2>
             </div>
-        </section>
-
-        <section class="packages">
-            <div class="packages-content">
-                <div class="section-header">
-                    <div class="section-badge">Choose Your Package</div>
-                    <h2>Birthday Party Packages</h2>
-                </div>
-
-                <div class="packages-grid">
-                    <div class="package-card">
-                        <div class="package-name">Pitch & Play</div>
-                        <div class="package-price">£9.95</div>
-                        <div class="package-price-per">per child (min 10 children)</div>
-                        <div class="package-highlight">Perfect starter party</div>
-                        
-                        <div class="package-features">
-                            <ul>
-                                <li>2 hours on professional 3G pitch</li>
-                                <li>UEFA licensed coach</li>
-                                <li>Football activities & games</li>
-                                <li>Birthday child gets special treatment</li>
-                                <li>Party host to help you</li>
-                            </ul>
-                        </div>
-                        
-                        <button class="package-cta" onclick="selectPackage('pitch-play')">Book Pitch & Play</button>
-                        <div class="split-payment-note">💳 Split payment available at checkout</div>
-                    </div>
-
-                    <div class="package-card featured">
-                        <div class="popular-badge">Most Popular</div>
-                        <div class="package-name">Silver Strike</div>
-                        <div class="package-price">£18.50</div>
-                        <div class="package-price-per">per child (min 10 children)</div>
-                        <div class="package-highlight">Everything + Food & Prizes</div>
-                        
-                        <div class="package-features">
-                            <ul>
-                                <li>Everything in Pitch & Play</li>
-                                <li>Chicago Town pizza party</li>
-                                <li>Drinks included</li>
-                                <li>Match Attax cards for everyone</li>
-                                <li>Birthday medal for special child</li>
-                                <li>Digital photos included</li>
-                            </ul>
-                        </div>
-                        
-                        <button class="package-cta" onclick="selectPackage('silver-strike')">Book Silver Strike</button>
-                        <div class="split-payment-note">💳 Split payment available at checkout</div>
-                    </div>
-
-                    <div class="package-card">
-                        <div class="package-name">Golden Boot</div>
-                        <div class="package-price">£28.50</div>
-                        <div class="package-price-per">per child (min 10 children)</div>
-                        <div class="package-highlight">The ultimate party experience</div>
-                        
-                        <div class="package-features">
-                            <ul>
-                                <li>Everything in Silver Strike</li>
-                                <li>Nike football for birthday child</li>
-                                <li>Golden Boot trophy ceremony</li>
-                                <li>Professional party photographer</li>
-                                <li>Take-home goodie bags</li>
-                                <li>Priority venue booking</li>
-                            </ul>
-                        </div>
-                        
-                        <button class="package-cta" onclick="selectPackage('golden-boot')">Book Golden Boot</button>
-                        <div class="split-payment-note">💳 Split payment available at checkout</div>
-                    </div>
-                </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">How many children do I need for a party? <span>+</span></div>
+                <div class="faq-answer">Minimum 10 children required for all packages. Maximum depends on venue size - typically 20-24 children.</div>
             </div>
-        </section>
-
-        <section class="testimonials">
-            <div class="testimonials-content">
-                <div class="section-header">
-                    <div class="section-badge">Happy Parents</div>
-                    <h2>What Parents Say</h2>
-                </div>
-
-                <div class="testimonials-grid">
-                    <div class="testimonial">
-                        <div class="testimonial-text">"Absolutely brilliant! The coach was fantastic with the kids and the whole party was so well organized. Jake is still talking about his Golden Boot trophy!"</div>
-                        <div class="testimonial-author">
-                            <div class="testimonial-avatar">SC</div>
-                            <div class="testimonial-details">
-                                <h4>Sarah Collins</h4>
-                                <div class="testimonial-meta">Jake's 8th birthday • Manchester Powerleague</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="testimonial">
-                        <div class="testimonial-text">"Best party we've ever organized! The kids were engaged the whole time and parents could actually relax. The pizza was great too!"</div>
-                        <div class="testimonial-author">
-                            <div class="testimonial-avatar">MJ</div>
-                            <div class="testimonial-details">
-                                <h4>Mark Johnson</h4>
-                                <div class="testimonial-meta">Emma's 7th birthday • Birmingham Powerleague</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="testimonial">
-                        <div class="testimonial-text">"Amazing value for money. Everything was included and the coach made sure every child felt special. Would definitely book again!"</div>
-                        <div class="testimonial-author">
-                            <div class="testimonial-avatar">LW</div>
-                            <div class="testimonial-details">
-                                <h4>Lisa Williams</h4>
-                                <div class="testimonial-meta">Connor's 9th birthday • London Powerleague</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Are your coaches DBS checked? <span>+</span></div>
+                <div class="faq-answer">Yes, all our coaches are DBS checked, FA qualified, and experienced in working with children aged 4-16.</div>
             </div>
-        </section>
+            
+            <div class="faq-item">
+                <div class="faq-question">What if it rains? <span>+</span></div>
+                <div class="faq-answer">All our venues have covered or indoor facilities, so weather is never a problem for your party.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Can I pay in installments? <span>+</span></div>
+                <div class="faq-answer">Yes! Pay just £50 deposit when booking, then the remainder 7 days before your party date.</div>
+            </div>
+        </div>
+    </section>
 
-        <footer class="footer">
-            <div class="footer-content">
-                <div class="brand-partners">
-                    <div class="partners-title">Trusted Partners</div>
-                    <div class="partners-logos">
-                        <div class="partner-logo">NIKE</div>
-                        <div class="partner-logo">CHICAGO TOWN</div>
-                        <div class="partner-logo">HAPPY MONKEY</div>
-                        <div class="partner-logo">MATCH ATTAX</div>
-                        <div class="partner-logo">COSTA</div>
-                        <div class="partner-logo">LUCOZADE</div>
-                    </div>
-                </div>
-
-                <div class="footer-links">
-                    <div class="footer-section">
-                        <h4>Kids Parties</h4>
-                        <ul>
-                            <li><a href="#">Football Parties</a></li>
-                            <li><a href="#">Package Options</a></li>
-                            <li><a href="#">Find A Venue</a></li>
-                            <li><a href="#">Party FAQs</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-section">
-                        <h4>Other Services</h4>
-                        
+    <!-- Brand Partners -->
+    <section class="brand-partners">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">Trusted Partners</div>
+                <h2 class="section-title">Official Partners</h2>
+            </div>
+            
+            <div class="partners-grid">
+                <img src="https://via.placeholder.com/120x40/00A651/FFFFFF?text=NIKE" alt="Nike" class="partner-logo">
+                <img src="https://via.placeholder.com/120x40/00A651/FFFFFF?text=CHICAGO+TOWN" alt="Chicago Town" class="partner-logo">
+                <img src="https://via.placeholder.com/120x40/00A651/FFFFFF?text=HAPPY+MONKEY" alt="Happy Monkey" class="partner-logo">
+                <img src="https://via.placeholder.com/120x40/00A651/FFFFFF?text=MATCH+ATTAX" alt="Match Attax" class="partner-logo">
+                <img src="https://via.placeholder.com/120x40/00A651/FFFFFF?text=COSTA" alt="Costa" class="partner-logo">
+                <img src="https://via.placeholder.com/120x40/00A651/FFFFFF?text=LUCOZADE" alt="Lucozade" class="partner-logo">
+            </div>
+        </div>
+    
