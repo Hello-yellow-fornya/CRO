@@ -1,0 +1,114 @@
+name: Generate CRO Mockup
+on:
+  push:
+    paths:
+      - 'clients/**/design-tokens.md'
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client name (e.g. powerleague)'
+        required: true
+        type: string
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install @anthropic-ai/sdk
+      - name: Detect client from changed files
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "client=${{ inputs.client }}" >> $GITHUB_OUTPUT
+          else
+            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'clients/.*/design-tokens.md' | head -1)
+            CLIENT=$(echo $CHANGED | sed 's/clients\///' | sed 's/\/design-tokens.md//')
+            echo "client=$CLIENT" >> $GITHUB_OUTPUT
+          fi
+      - name: Generate mockup
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLIENT: ${{ steps.detect.outputs.client }}
+        run: |
+          node -e "
+          const Anthropic = require('@anthropic-ai/sdk');
+          const fs = require('fs');
+          const path = require('path');
+          const client = process.env.CLIENT;
+          console.log('Generating mockup for: ' + client);
+          function readFile(filePath) {
+            try { return fs.readFileSync(filePath, 'utf8'); }
+            catch(e) { return null; }
+          }
+          // Read all context files
+          const designTokens  = readFile('clients/' + client + '/design-tokens.md');
+          const context       = readFile('clients/' + client + '/context.md');
+          const scoring       = readFile('clients/' + client + '/scoring.md');
+          const offLimits     = readFile('clients/' + client + '/off-limits.md');
+          const config        = JSON.parse(readFile('clients/' + client + '/config.json') || '{}');
+          const vertical      = config.vertical || 'leisure-sports';
+          const knowledgeBase = readFile('knowledge-base/' + vertical + '.md');
+          const testDatabase  = readFile('test-database/index.md');
+          if (!designTokens) {
+            console.error('No design-tokens.md found for ' + client);
+            process.exit(1);
+          }
+          const prompt = \`You are a senior CRO specialist and frontend developer. Generate a complete, self-contained HTML mockup for a CRO test variation.
+          ## Client Context
+          \${context || 'No context file found'}
+          ## Design Tokens (use these exactly — fonts, colours, spacing)
+          \${designTokens}
+          ## Off-Limits Elements (never modify these)
+          \${offLimits || 'No off-limits file found'}
+          ## CRO Knowledge Base for this vertical
+          \${knowledgeBase || 'No knowledge base found'}
+          ## Test Database (avoid repeating failed tests)
+          \${testDatabase || 'No test database found'}
+          ## Your Task
+          Generate a BIG test variation for the primary conversion page. Apply the top 3-5 CRO principles from the knowledge base. Every design decision must reference a specific principle.
+          Requirements:
+          - Single self-contained HTML file — all CSS and JS inline
+          - Pixel-faithful to the client design system — use exact fonts, colours and spacing from design tokens
+          - Full page width, fully interactive where relevant
+          - Annotation bar at top showing what changed and which knowledge base principle justifies each change
+          - Toggle to show/hide annotations
+          - Must not modify any off-limits elements
+          - Mobile responsive
+          Output ONLY the complete HTML file. No explanation before or after. Start with <!DOCTYPE html> and end with </html>.
+          \`;
+          async function generate() {
+            const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+            const message = await anthropic.messages.create({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 8000,
+              messages: [{ role: 'user', content: prompt }]
+            });
+            const html = message.content[0].text;
+            // Save mockup
+            const outputDir = 'mockups/' + client;
+            fs.mkdirSync(outputDir, { recursive: true });
+            fs.writeFileSync(path.join(outputDir, 'variation-a.html'), html);
+            console.log('Mockup saved to ' + outputDir + '/variation-a.html');
+          }
+          generate().catch(err => {
+            console.error('Generation failed:', err.message);
+            process.exit(1);
+          });
+          "
+      - name: Commit and push mockup
+        env:
+          CLIENT: ${{ steps.detect.outputs.client }}
+        run: |
+          git config --local user.email "cro-os-bot@users.noreply.github.com"
+          git config --local user.name "CRO OS Bot"
+          git add mockups/${{ steps.detect.outputs.client }}/
+          git diff --staged --quiet || git commit -m "auto: generate mockup for ${{ steps.detect.outputs.client }} [skip ci]"
+          git push
