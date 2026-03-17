@@ -4,7 +4,7 @@
  * Usage: node extract-tokens.js <url> <client-name>
  * Example: node extract-tokens.js https://www.powerleague.com/football-birthday-party powerleague
  */
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path');
 const url = process.argv[2];
@@ -20,7 +20,8 @@ async function extractTokens() {
   console.log('Launching browser...\n');
   const browser = await puppeteer.launch({
     headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
   });
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900 });
