@@ -16,8 +16,6 @@ on:
 jobs:
   extract:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -33,6 +31,7 @@ jobs:
         if: github.event_name == 'push'
         run: |
           cd tools
+          # Find all config.json files that changed in this push
           CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'clients/.*/config.json' || true)
           if [ -z "$CHANGED" ]; then
             echo "No client config changes detected"
