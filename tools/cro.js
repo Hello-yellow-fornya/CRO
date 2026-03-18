@@ -193,6 +193,7 @@ ${C.bold}CRO OS${C.reset}
   ${C.cyan}cro client <slug>${C.reset}     Show detail for one client
   ${C.cyan}cro sync <slug>${C.reset}       Refresh GA4 data for a client
   ${C.cyan}cro sync all${C.reset}          Refresh GA4 data for all clients
+  ${C.cyan}cro work <slug>${C.reset}       Load client context into Claude Code
 `);
 }
 
@@ -203,8 +204,62 @@ else if (cmd === 'clients')             cmdClients();
 else if (cmd.startsWith('client '))     cmdClient(args[1]);
 else if (cmd.startsWith('sync '))       cmdSync(args[1]);
 else if (cmd === 'sync')                cmdSync(args[1]);
+else if (cmd.startsWith('work '))      cmdWork(args[1]);
 else if (cmd === '' || cmd === 'help')  cmdHelp();
 else {
   console.log(`\n${C.dim}Unknown command: ${cmd}${C.reset}`);
   cmdHelp();
+}
+
+// ── cro work <slug> ───────────────────────────────────────────────────────────
+// Prints a context-loading prompt to paste into Claude Code
+
+function cmdWork(slug) {
+  if (!slug) { console.log('\nUsage: cro work <slug>\n'); return; }
+
+  const clients = getClients();
+  const c = clients.find(x => x.slug === slug);
+  if (!c) {
+    console.log(`\n${C.red}Client "${slug}" not found.${C.reset}\n`);
+    return;
+  }
+
+  const name = c.config?.client_name || slug;
+  const vert = c.config?.verticals
+    ? c.config.verticals.join(' + ')
+    : c.config?.vertical || '—';
+
+  console.log(`\n${C.cyan}${C.bold}Working on: ${name}${C.reset}`);
+  console.log(`${C.dim}Paste this into Claude Code to load full client context:\n${C.reset}`);
+
+  const prompt = `You are working on ${name} as part of CRO OS.
+
+Read the following files now before responding to anything:
+- clients/${slug}/config.json
+- clients/${slug}/research.md
+- clients/${slug}/context.md
+- clients/${slug}/scoring.md
+- clients/${slug}/off-limits.md
+- clients/${slug}/onboarding-report.md
+- clients/${slug}/ga4-snapshot.json
+- brain/funnel-kpis.md
+- brain/personalisation-strategy.md
+- brain/scoring-model.md
+- knowledge-base/${vert.split(' + ').map(v => ({
+    leisure: 'leisure-sports',
+    lead_gen: 'lead-gen',
+    financial_services: 'financial-services',
+    ecommerce: 'ecommerce',
+    saas: 'saas',
+    travel: 'travel'
+  }[v] || v)).join(', knowledge-base/')}
+- test-database/index.md
+
+Once you have read them, confirm with a one-line summary:
+"[Client name] — [vertical] — [weekly sessions]/week — [CVR]% CVR — [active test or 'no active test']"
+
+Then wait for instructions.`;
+
+  console.log(prompt);
+  console.log();
 }
