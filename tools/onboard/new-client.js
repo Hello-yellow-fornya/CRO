@@ -27,9 +27,7 @@ function run(cmd, env = {}) {
 }
 
 async function main() {
-  console.log(`\n${C.cyan}${C.bold}═══════════════════════════════════════`);
-  console.log(`  CRO OS — New Client`);
-  console.log(`═══════════════════════════════════════${C.reset}\n`);
+  console.log(`\n${C.cyan}${C.bold}CRO OS — New client${C.reset}\n`);
 
   const name   = (await ask('Client name:         ')).trim();
   const url    = (await ask('Website URL:         ')).trim();
@@ -111,9 +109,9 @@ async function main() {
   });
 
   // Done
-  console.log(`\n${C.green}${C.bold}═══════════════════════════════════════`);
-  console.log(`  Done — ${name} onboarded`);
-  console.log(`═══════════════════════════════════════${C.reset}`);
+
+  console.log(`\n${C.green}${C.bold}Done — ${name} onboarded${C.reset}`);
+
   console.log(`\n  Review: clients/${slug}/onboarding-report.md`);
   console.log(`  Then commit: git add clients/${slug}/ && git commit -m "onboard: ${name}"\n`);
 }
