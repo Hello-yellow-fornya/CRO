@@ -1,0 +1,46 @@
+name: Stage 3 Live QA Audit
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client name (e.g. powerleague, koalify)'
+        required: true
+        type: string
+      url:
+        description: 'Page URL to audit'
+        required: true
+        type: string
+  schedule:
+    # Runs every Monday at 08:00 UTC — weekly health check
+    - cron: '0 8 * * 1'
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Playwright
+        run: |
+          npm install playwright
+          npx playwright install chromium
+      - name: Run Stage 3 audit
+        run: node tools/audit/stage3-qa.js --client ${{ github.event.inputs.client }} --url ${{ github.event.inputs.url }}
+        env:
+          NODE_ENV: production
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results-${{ github.event.inputs.client }}-${{ github.run_id }}
+          path: clients/${{ github.event.inputs.client }}/audit-stage3-*.csv
+      - name: Commit audit log to repo
+        run: |
+          git config user.name "CRO OS Audit Bot"
+          git config user.email "audit-bot@cro-os"
+          git add clients/${{ github.event.inputs.client }}/audit-stage3-*.json
+          git add clients/${{ github.event.inputs.client }}/audit-stage3-*.csv
+          git commit -m "audit: stage3 results for ${{ github.event.inputs.client }} $(date +%Y-%m-%d)" || echo "No changes to commit"
+          git push

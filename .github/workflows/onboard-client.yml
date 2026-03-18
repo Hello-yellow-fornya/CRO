@@ -1,0 +1,64 @@
+name: Onboard New Client
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug (lowercase, no spaces — e.g. powerleague)'
+        required: true
+        type: string
+      client_name:
+        description: 'Client display name (e.g. Powerleague)'
+        required: true
+        type: string
+      url:
+        description: 'Primary URL to analyse'
+        required: true
+        type: string
+      vertical:
+        description: 'Vertical (leisure, ecommerce, lead_gen, financial_services, saas, travel, composite)'
+        required: true
+        type: string
+        default: 'ecommerce'
+      verticals:
+        description: 'For composite clients — comma-separated list (e.g. leisure,lead_gen). Leave blank for single vertical.'
+        required: false
+        type: string
+        default: ''
+jobs:
+  scaffold:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Create client folder and config
+        run: node tools/onboard/scaffold.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+          VERTICAL: ${{ github.event.inputs.vertical }}
+          VERTICALS: ${{ github.event.inputs.verticals }}
+      - name: Generate onboarding report prompt
+        run: node tools/onboard/generate-report.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+          VERTICAL: ${{ github.event.inputs.vertical }}
+          VERTICALS: ${{ github.event.inputs.verticals }}
+      - name: Extract design tokens
+        run: node tools/extract-tokens.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          URL: ${{ github.event.inputs.url }}
+      - name: Commit scaffolded files
+        run: |
+          git config user.name "CRO OS Bot"
+          git config user.email "cro-os-bot@cro-os"
+          git add clients/${{ github.event.inputs.client }}/
+          git commit -m "onboard: scaffold ${{ github.event.inputs.client }}" || echo "No changes to commit"
+          git push

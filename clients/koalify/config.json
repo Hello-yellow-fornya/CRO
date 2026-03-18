@@ -1,9 +1,13 @@
 {
-  "client": "koalify",
-  "url": "https://koalify.com.au",
   "extractUrl": "https://koalify.com.au",
-  "vertical": "financial-services",
-  "vwoImplemented": true,
-  "ga4Implemented": true,
-  "notes": "Extract from homepage — purchase and refinance pages blocked by robots.txt"
+  "vertical": "lead_gen",
+  "primary_kpi": "generate_lead",
+  "qa_selectors": {
+    "click_primary_cta": ".hero-cta, [data-cta='primary'], button[class*='refinance'], button[class*='purchase']",
+    "open_form": "button[class*='apply'], button[class*='get-started'], [data-form-trigger]",
+    "complete_form_step": "[data-form-next], button[type='submit'][class*='next']",
+    "submit_form": "button[type='submit'][class*='submit'], [data-form-submit]",
+    "use_calculator": "[data-calculator], .calculator-submit, button[class*='calculate']"
+  },
+  "scheduled_audit_url": "https://koalify.com.au"
 }
