@@ -59,6 +59,25 @@ jobs:
           VERTICAL_HINT: ${{ github.event.inputs.vertical }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
+
+      # ── Phase 1.5: GA4 data pull (if property ID is configured) ───────────────
+      - name: Phase 1.5 — Pull GA4 data
+        run: |
+          CONFIG="clients/${{ github.event.inputs.client }}/config.json"
+          if [ -f "$CONFIG" ]; then
+            PROP=$(node -e "try{const c=require('./$CONFIG');console.log(c.ga4_property_id||'')}catch(e){}" 2>/dev/null)
+            if [ -n "$PROP" ]; then
+              echo "GA4 property ID found: $PROP — pulling data"
+              node tools/ga4-query.js --client "${{ github.event.inputs.client }}" --days 90
+            else
+              echo "No ga4_property_id in config.json — skipping GA4 pull"
+              echo "Add ga4_property_id to config.json to enable real data in onboarding report"
+            fi
+          fi
+        continue-on-error: true
+        env:
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
       # ── Phase 2: Scaffold — create folder structure ────────────────────────
       - name: Phase 2 — Scaffold client folder
         run: node tools/onboard/scaffold.js

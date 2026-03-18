@@ -1,0 +1,67 @@
+name: GA4 Weekly Sync
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday 06:00 UTC — before the weekly review
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug (leave blank to run all clients)'
+        required: false
+        type: string
+      days:
+        description: 'Days of data to pull (default 90)'
+        required: false
+        default: '90'
+        type: string
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: cd tools && npm install
+
+      - name: Run GA4 sync — specific client
+        if: github.event.inputs.client != ''
+        run: node tools/ga4-query.js --client "${{ github.event.inputs.client }}" --days "${{ github.event.inputs.days || '90' }}"
+        env:
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Run GA4 sync — all clients
+        if: github.event.inputs.client == '' || github.event_name == 'schedule'
+        run: |
+          for dir in clients/*/; do
+            client=$(basename "$dir")
+            config="$dir/config.json"
+            if [ -f "$config" ]; then
+              prop=$(node -e "try{const c=require('./$config');console.log(c.ga4_property_id||'')}catch(e){}" 2>/dev/null)
+              if [ -n "$prop" ]; then
+                echo "Syncing $client (GA4 property: $prop)"
+                node tools/ga4-query.js --client "$client" --days "90"
+              else
+                echo "Skipping $client — no ga4_property_id in config.json"
+              fi
+            fi
+          done
+        env:
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Commit updated snapshots
+        run: |
+          git config user.name "CRO OS Bot"
+          git config user.email "cro-os-bot@users.noreply.github.com"
+          git add clients/*/ga4-snapshot.json
+          git diff --staged --quiet || git commit -m "data: GA4 weekly sync $(date +%Y-%m-%d)"
+          git push

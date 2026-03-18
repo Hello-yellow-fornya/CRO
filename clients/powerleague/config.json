@@ -1,20 +1,31 @@
 {
   "client_slug": "powerleague",
   "client_name": "Powerleague",
+  "ga4_property_id": "REPLACE_WITH_YOUR_GA4_PROPERTY_ID  # Find in GA4 Admin > Property Settings > Property ID",
   "extractUrl": "https://www.powerleague.com/football-birthday-party",
   "vertical": "composite",
-  "verticals": ["leisure", "lead_gen"],
+  "verticals": [
+    "leisure",
+    "lead_gen"
+  ],
   "funnels": {
     "transactional": {
       "label": "Direct booking",
       "primary_kpi": "purchase",
-      "entry_urls": ["/football-birthday-party", "/book"],
+      "entry_urls": [
+        "/football-birthday-party",
+        "/book"
+      ],
       "description": "User selects package, chooses date and location, completes payment"
     },
     "lead": {
       "label": "Enquiry / lead",
       "primary_kpi": "generate_lead",
-      "entry_urls": ["/contact", "/enquiry", "/party-enquiry"],
+      "entry_urls": [
+        "/contact",
+        "/enquiry",
+        "/party-enquiry"
+      ],
       "description": "User submits an enquiry form rather than booking directly"
     }
   },

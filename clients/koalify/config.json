@@ -1,6 +1,7 @@
 {
   "client_slug": "koalify",
   "client_name": "Koalify",
+  "ga4_property_id": "REPLACE_WITH_YOUR_GA4_PROPERTY_ID  # Find in GA4 Admin > Property Settings > Property ID",
   "url": "https://koalify.com.au",
   "extractUrl": "https://koalify.com.au",
   "scheduled_audit_url": "https://koalify.com.au",

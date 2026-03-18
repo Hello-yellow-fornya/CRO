@@ -96,6 +96,52 @@ const designTokens = readFile(`${dir}/design-tokens.md`,
 
 const offLimits = readFile(`${dir}/off-limits.md`, '');
 
+// Read GA4 snapshot if available (Phase 1.5 output)
+const ga4SnapshotRaw = readFile(`${dir}/ga4-snapshot.json`);
+let ga4Summary = '';
+let ga4Available = false;
+if (ga4SnapshotRaw) {
+  try {
+    const snap = JSON.parse(ga4SnapshotRaw);
+    ga4Available = true;
+    const s = snap.summary || {};
+    const topSources = (s.top_sources || [])
+      .map(r => `  - ${r.source_medium}: ${r.sessions.toLocaleString()} sessions, CVR ${r.cvr}%`)
+      .join('\n');
+    const nvrRows = (snap.queries && snap.queries.new_vs_returning || [])
+      .map(r => `  - ${r.newVsReturning} / ${r.deviceCategory}: ${Math.round(r.sessions)} sessions, CVR ${Math.round((r.sessionConversionRate||0)*10000)/100}%`)
+      .join('\n');
+    ga4Summary = `## GA4 data snapshot (${snap.days || 90}-day window: ${(snap.date_range||{}).startDate} to ${(snap.date_range||{}).endDate})
+
+REAL DATA — use these numbers directly in the report. Do not use vertical benchmark estimates.
+
+Summary:
+- Total sessions: ${(s.total_sessions || 0).toLocaleString()}
+- Weekly average sessions: ${(s.weekly_avg_sessions || 0).toLocaleString()}
+- Blended CVR: ${s.blended_cvr_pct || 0}%
+- New user CVR: ${s.new_user_cvr_pct || 0}%
+- Returning user CVR: ${s.returning_user_cvr_pct || 0}%
+- Returning/new CVR multiplier: ${s.returning_vs_new_cvr_multiplier || 'unknown'}x
+- New users: ${s.new_users_pct || 0}% of sessions
+- Traffic assessment: ${s.mde_note || 'unknown'}
+
+Top sources by sessions:
+${topSources}
+
+New vs returning by device:
+${nvrRows}
+
+Channel groups:
+${(snap.queries && snap.queries.channel_groups || []).map(r => `  - ${r.sessionDefaultChannelGroup} / ${r.newVsReturning}: ${Math.round(r.sessions)} sessions, CVR ${Math.round((r.sessionConversionRate||0)*10000)/100}%`).join('\n')}`;
+  } catch(e) {
+    console.log('Warning: could not parse ga4-snapshot.json:', e.message);
+    ga4Summary = 'GA4 snapshot found but could not be parsed — check ga4-snapshot.json format.';
+  }
+} else {
+  ga4Summary = 'GA4 data not available — ga4-snapshot.json not found. Add ga4_property_id to config.json and run the GA4 sync workflow before onboarding for real data. MDE estimates in section 8 will use vertical benchmarks.';
+}
+console.log(` GA4 data:  ${ga4Available ? 'AVAILABLE — report will use real numbers' : 'not found — using estimates'}\n`);
+
 // ── Load brain files ──────────────────────────────────────────────────────────
 
 const funnelKpis      = readFile('brain/funnel-kpis.md');
@@ -156,6 +202,11 @@ ${phase1Block}
 
 ---
 
+## GA4 data (Phase 1.5):
+${ga4Summary}
+
+---
+
 ## Tag audit results (Phase 4):
 ${auditCsv}
 
@@ -200,6 +251,7 @@ INSTRUCTIONS:
 Produce the onboarding report below. Critical rules:
 - Be SPECIFIC to this client. Reference actual findings from Phase 1 research, actual audit results, actual URLs. No generic advice.
 - Phase 1 is authoritative. Sections 1, 5, 6, 7, 9 MUST build on research.md findings — do not re-derive what Phase 1 already determined. Reference it explicitly ("Phase 1 identified...", "research.md section 7 flags...").
+- GA4 data is ground truth. If GA4 snapshot data is available (marked REAL DATA), use those exact numbers in sections 5, 6, 8 and 10. Do not substitute vertical benchmark estimates when real data exists. State the actual weekly session count, actual CVR, actual new/returning split.
 - If Phase 1 identified [UNCONFIRMED] items, carry those forward in the relevant report section with the same flag.
 - Sections 2, 3, 4, 8, 10 are new analysis not covered by Phase 1 — generate these fresh from audit results and brain files.
 - For composite clients: every section must treat each revenue line separately. Never blend.
