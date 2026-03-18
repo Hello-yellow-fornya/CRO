@@ -1,0 +1,141 @@
+name: "Onboard — Phase A (Research + Data)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug (lowercase, no spaces — e.g. chelseapiers)'
+        required: true
+        type: string
+      url:
+        description: 'Primary website URL (homepage)'
+        required: true
+        type: string
+      client_name:
+        description: 'Display name (e.g. Chelsea Piers)'
+        required: true
+        type: string
+      vertical:
+        description: 'Vertical (auto = Phase 1 determines)'
+        required: false
+        type: choice
+        default: auto
+        options:
+          - auto
+          - leisure
+          - lead_gen
+          - ecommerce
+          - financial_services
+          - saas
+          - travel
+          - composite
+
+jobs:
+  phase-a:
+    name: "Phase A — Research, GA4, Scaffold, Tokens, Audit"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: cd tools && npm install
+
+      - name: Install Playwright
+        run: cd tools && npx playwright install chromium --with-deps
+
+      # ── Phase 1: Research ──────────────────────────────────────────────────
+      - name: "Phase 1 — Machine reads the client site"
+        run: node tools/onboard/research.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+          VERTICAL_HINT: ${{ github.event.inputs.vertical }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      # ── Phase 1.5: GA4 data ────────────────────────────────────────────────
+      - name: "Phase 1.5 — Pull GA4 data (if property ID configured)"
+        continue-on-error: true
+        run: |
+          CONFIG="clients/${{ github.event.inputs.client }}/config.json"
+          if [ -f "$CONFIG" ]; then
+            PROP=$(node -e "try{const c=require('./$CONFIG');console.log(c.ga4_property_id||'')}catch(e){}" 2>/dev/null)
+            if [ -n "$PROP" ] && [ "$PROP" != "REPLACE_WITH_YOUR_GA4_PROPERTY_ID" ]; then
+              echo "GA4 property ID: $PROP — pulling data"
+              node tools/ga4-query.js --client "${{ github.event.inputs.client }}" --days 90
+            else
+              echo "No valid ga4_property_id in config.json — skipping"
+              echo "Add ga4_property_id to clients/${{ github.event.inputs.client }}/config.json and re-run Phase A, or proceed and the report will use benchmark estimates"
+            fi
+          fi
+        env:
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      # ── Phase 2: Scaffold ──────────────────────────────────────────────────
+      - name: "Phase 2 — Create client folder structure"
+        run: node tools/onboard/scaffold.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+
+      # ── Phase 3: Design tokens ─────────────────────────────────────────────
+      - name: "Phase 3 — Extract design tokens"
+        continue-on-error: true
+        run: node tools/extract-tokens.js "${{ github.event.inputs.url }}" "${{ github.event.inputs.client }}"
+
+      # ── Phase 4: Tag audit ─────────────────────────────────────────────────
+      - name: "Phase 4 — Tag audit"
+        continue-on-error: true
+        run: node tools/audit/stage3-qa.js --client "${{ github.event.inputs.client }}" --url "${{ github.event.inputs.url }}"
+
+      # ── Commit Phase A outputs ─────────────────────────────────────────────
+      - name: Commit Phase A outputs
+        run: |
+          git config user.name "CRO OS Bot"
+          git config user.email "cro-os-bot@users.noreply.github.com"
+          git add clients/${{ github.event.inputs.client }}/
+          git diff --staged --quiet || git commit -m "onboard(${{ github.event.inputs.client }}): Phase A complete — research, data, scaffold, tokens, audit"
+          git push
+
+      # ── Instructions for human review ─────────────────────────────────────
+      - name: "NEXT STEP — Human review required before Phase B"
+        run: |
+          echo ""
+          echo "════════════════════════════════════════════════════════"
+          echo "  PHASE A COMPLETE — HUMAN REVIEW REQUIRED"
+          echo "════════════════════════════════════════════════════════"
+          echo ""
+          echo "  Files to review:"
+          echo "  → clients/${{ github.event.inputs.client }}/research.md"
+          echo "  → clients/${{ github.event.inputs.client }}/ga4-snapshot.json"
+          echo "  → clients/${{ github.event.inputs.client }}/audit-stage3-*.csv"
+          echo ""
+          echo "  Open PROMPTS.md → 'Gate 1: Review Phase A outputs'"
+          echo "  Paste the prompt into Claude with the files attached."
+          echo "  Once you have reviewed and corrected any issues,"
+          echo "  trigger the 'Onboard — Phase B' workflow."
+          echo ""
+          echo "  Workflow: Actions → Onboard — Phase B (Report)"
+          echo "  Input: client = ${{ github.event.inputs.client }}"
+          echo ""
+          echo "════════════════════════════════════════════════════════"
+
+      - name: Upload Phase A artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-a-${{ github.event.inputs.client }}
+          path: |
+            clients/${{ github.event.inputs.client }}/research.md
+            clients/${{ github.event.inputs.client }}/ga4-snapshot.json
+            clients/${{ github.event.inputs.client }}/design-tokens.md
+            clients/${{ github.event.inputs.client }}/audit-stage3-*.csv

@@ -1,0 +1,92 @@
+name: "Onboard — Phase B (Report)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug — must have completed Phase A first'
+        required: true
+        type: string
+
+jobs:
+  phase-b:
+    name: "Phase B — Generate onboarding report"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: cd tools && npm install
+
+      # ── Check Phase A completed ────────────────────────────────────────────
+      - name: Check Phase A outputs exist
+        run: |
+          if [ ! -f "clients/${{ github.event.inputs.client }}/research.md" ]; then
+            echo "ERROR: clients/${{ github.event.inputs.client }}/research.md not found"
+            echo "Run 'Onboard — Phase A' first and review the outputs before running Phase B"
+            exit 1
+          fi
+          echo "Phase A outputs found — proceeding to report generation"
+          echo "research.md: $(wc -l < clients/${{ github.event.inputs.client }}/research.md) lines"
+          if [ -f "clients/${{ github.event.inputs.client }}/ga4-snapshot.json" ]; then
+            echo "ga4-snapshot.json: present — report will use real GA4 data"
+          else
+            echo "ga4-snapshot.json: not found — report will use benchmark estimates"
+          fi
+
+      # ── Phase 5: Generate report ───────────────────────────────────────────
+      - name: "Phase 5 — Generate onboarding report"
+        run: node tools/onboard/generate-report.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      # ── Commit report ──────────────────────────────────────────────────────
+      - name: Commit onboarding report
+        run: |
+          git config user.name "CRO OS Bot"
+          git config user.email "cro-os-bot@users.noreply.github.com"
+          git add clients/${{ github.event.inputs.client }}/onboarding-report.md
+          git add clients/${{ github.event.inputs.client }}/onboarding-status.json
+          git diff --staged --quiet || git commit -m "onboard(${{ github.event.inputs.client }}): Phase B complete — onboarding report generated"
+          git push
+
+      # ── Instructions for Gate 2 ────────────────────────────────────────────
+      - name: "NEXT STEP — Gate 2 review before client goes active"
+        run: |
+          echo ""
+          echo "════════════════════════════════════════════════════════"
+          echo "  PHASE B COMPLETE — FINAL REVIEW BEFORE CLIENT ACTIVE"
+          echo "════════════════════════════════════════════════════════"
+          echo ""
+          echo "  File to review:"
+          echo "  → clients/${{ github.event.inputs.client }}/onboarding-report.md"
+          echo ""
+          echo "  Open PROMPTS.md → 'Gate 2: Review onboarding report'"
+          echo "  This prompt walks you through:"
+          echo "    - Resolving all [UNCONFIRMED] items"
+          echo "    - Populating off-limits.md from section 9"
+          echo "    - Setting up GA4 funnels per section 4"
+          echo "    - Scoring the pre-data hypotheses"
+          echo "    - Confirming the 30-day plan"
+          echo ""
+          echo "  Once Gate 2 review is complete, the client is active."
+          echo ""
+          echo "════════════════════════════════════════════════════════"
+
+      - name: Upload Phase B artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-report-${{ github.event.inputs.client }}
+          path: clients/${{ github.event.inputs.client }}/onboarding-report.md
