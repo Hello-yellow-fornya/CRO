@@ -1,0 +1,59 @@
+name: Extract Control HTML
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug (e.g. powerleague)'
+        required: true
+        type: string
+      url:
+        description: 'Page URL to extract as control'
+        required: true
+        type: string
+      viewport:
+        description: 'Viewport'
+        required: false
+        type: choice
+        default: desktop
+        options:
+          - desktop
+          - mobile
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: cd tools && npm install
+
+      - name: Install Playwright browsers
+        run: cd tools && npx playwright install chromium --with-deps
+
+      - name: Extract control HTML
+        run: node tools/extract-control.js --client "${{ github.event.inputs.client }}" --url "${{ github.event.inputs.url }}" --viewport "${{ github.event.inputs.viewport }}"
+
+      - name: Commit control files
+        run: |
+          git config user.name "CRO OS Bot"
+          git config user.email "cro-os-bot@users.noreply.github.com"
+          git add clients/${{ github.event.inputs.client }}/controls/
+          git diff --staged --quiet || git commit -m "control: ${{ github.event.inputs.client }} — ${{ github.event.inputs.url }} (${{ github.event.inputs.viewport }}) $(date +%Y-%m-%d)"
+          git push
+
+      - name: Upload control as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-${{ github.event.inputs.client }}-${{ github.event.inputs.viewport }}
+          path: clients/${{ github.event.inputs.client }}/controls/
