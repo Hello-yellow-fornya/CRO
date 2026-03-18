@@ -2,11 +2,13 @@
   "name": "cro-os-tools",
   "version": "2.1.0",
   "description": "CRO OS automation tools",
+  "bin": {
+    "cro": "./onboard/new-client.js"
+  },
   "scripts": {
     "extract": "node extract-tokens.js",
     "audit": "node audit/stage3-qa.js",
-    "research": "node onboard/research.js",
-    "onboard": "node onboard/scaffold.js"
+    "new": "node onboard/new-client.js"
   },
   "dependencies": {
     "playwright": "^1.40.0"
