@@ -204,7 +204,7 @@ else if (cmd === 'clients')             cmdClients();
 else if (cmd.startsWith('client '))     cmdClient(args[1]);
 else if (cmd.startsWith('sync '))       cmdSync(args[1]);
 else if (cmd === 'sync')                cmdSync(args[1]);
-else if (cmd.startsWith('work '))      cmdWork(args[1]);
+else if (cmd.startsWith('work '))      cmdWork(args[1]).catch(e => console.error(e.message));
 else if (cmd === '' || cmd === 'help')  cmdHelp();
 else {
   console.log(`\n${C.dim}Unknown command: ${cmd}${C.reset}`);
@@ -212,9 +212,9 @@ else {
 }
 
 // ── cro work <slug> ───────────────────────────────────────────────────────────
-// Prints a context-loading prompt to paste into Claude Code
+// Prompts for GA4 data source, then prints context prompt for Claude Code
 
-function cmdWork(slug) {
+async function cmdWork(slug) {
   if (!slug) { console.log('\nUsage: cro work <slug>\n'); return; }
 
   const clients = getClients();
@@ -229,37 +229,101 @@ function cmdWork(slug) {
     ? c.config.verticals.join(' + ')
     : c.config?.vertical || '—';
 
-  console.log(`\n${C.cyan}${C.bold}Working on: ${name}${C.reset}`);
-  console.log(`${C.dim}Paste this into Claude Code to load full client context:\n${C.reset}`);
+  const kbFiles = (c.config?.verticals || [c.config?.vertical || 'leisure'])
+    .map(v => ({ leisure:'leisure-sports', lead_gen:'lead-gen',
+      financial_services:'financial-services', ecommerce:'ecommerce',
+      saas:'saas', travel:'travel' }[v] || v))
+    .map(f => `- knowledge-base/${f}.md`)
+    .join('\n');
+
+  console.log(`\n${C.cyan}${C.bold}${name}${C.reset}  ${C.dim}${vert}${C.reset}\n`);
+
+  // ── GA4 data source picker ─────────────────────────────────────────────────
+
+  const hasBQ      = !!(c.config?.bigquery_project && c.config?.bigquery_dataset);
+  const hasSnap    = !!c.snap;
+  const snapDate   = c.snap?.pulled_at?.split('T')[0] || '';
+  const ga4PropId  = c.config?.ga4_property_id;
+  const hasGa4Api  = ga4PropId && !ga4PropId.startsWith('REPLACE') && process.env.GCP_SERVICE_ACCOUNT_KEY;
+
+  const options = [];
+  if (hasBQ)     options.push({ key:'1', label:`Query BigQuery live`, tag:'bq' });
+  if (hasGa4Api) options.push({ key: String(options.length+1), label:`Query GA4 Data API live`, tag:'api' });
+                 options.push({ key: String(options.length+1), label:`Upload a GA4 export file (CSV)`, tag:'upload' });
+  if (hasSnap)   options.push({ key: String(options.length+1), label:`Use last snapshot  ${C.dim}(${snapDate})${C.reset}`, tag:'snap' });
+                 options.push({ key: String(options.length+1), label:`Skip GA4 data`, tag:'skip' });
+
+  console.log(`GA4 data source:`);
+  options.forEach(o => console.log(`  ${o.key}.  ${o.label}`));
+
+  const readline = require('readline');
+  const rl2 = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise(r => rl2.question(`\n> `, r));
+  rl2.close();
+
+  const chosen = options.find(o => o.key === answer.trim()) || options[options.length - 1];
+  console.log(`\n${C.dim}Using: ${chosen.label.replace(/\x1b\[[0-9;]*m/g,'')}${C.reset}`);
+
+  let ga4Block = '';
+
+  if (chosen.tag === 'bq') {
+    console.log(`${C.dim}Querying BigQuery...${C.reset}`);
+    const { spawnSync } = require('child_process');
+    spawnSync(`node tools/bigquery-query.js --client ${slug}`, { shell:true, stdio:'inherit', env:process.env });
+    ga4Block = `- clients/${slug}/ga4-snapshot.json  (just refreshed from BigQuery)`;
+
+  } else if (chosen.tag === 'api') {
+    console.log(`${C.dim}Querying GA4 Data API...${C.reset}`);
+    const { spawnSync } = require('child_process');
+    spawnSync(`node tools/ga4-query.js --client ${slug} --days 90`, { shell:true, stdio:'inherit', env:process.env });
+    ga4Block = `- clients/${slug}/ga4-snapshot.json  (just refreshed from GA4 API)`;
+
+  } else if (chosen.tag === 'upload') {
+    console.log(`\n${C.yellow}Upload instructions:${C.reset}`);
+    console.log(`  1. In GA4 → Explore → create a Funnel Exploration`);
+    console.log(`  2. Segment by: device, source/medium, new vs returning`);
+    console.log(`  3. Export as CSV`);
+    console.log(`  4. Attach the CSV directly in Claude Code alongside this prompt\n`);
+    ga4Block = `- [ATTACHED CSV] — GA4 funnel export. Read this file and extract:\n  sessions, CVR, and stage drop-off rates by source/medium, device, and new vs returning.`;
+
+  } else if (chosen.tag === 'snap') {
+    ga4Block = `- clients/${slug}/ga4-snapshot.json  (snapshot from ${snapDate} — may be stale)`;
+
+  } else {
+    ga4Block = `(no GA4 data — analysis will be qualitative only)`;
+  }
+
+  // ── Build and print context prompt ────────────────────────────────────────
 
   const prompt = `You are working on ${name} as part of CRO OS.
 
-Read the following files now before responding to anything:
+Read these files from the repo before responding to anything:
+
+CLIENT FILES:
 - clients/${slug}/config.json
 - clients/${slug}/research.md
 - clients/${slug}/context.md
 - clients/${slug}/scoring.md
 - clients/${slug}/off-limits.md
 - clients/${slug}/onboarding-report.md
-- clients/${slug}/ga4-snapshot.json
+
+GA4 DATA:
+${ga4Block}
+
+BRAIN + KNOWLEDGE BASE:
 - brain/funnel-kpis.md
-- brain/personalisation-strategy.md
 - brain/scoring-model.md
-- knowledge-base/${vert.split(' + ').map(v => ({
-    leisure: 'leisure-sports',
-    lead_gen: 'lead-gen',
-    financial_services: 'financial-services',
-    ecommerce: 'ecommerce',
-    saas: 'saas',
-    travel: 'travel'
-  }[v] || v)).join(', knowledge-base/')}
+- brain/personalisation-strategy.md
+${kbFiles}
 - test-database/index.md
 
-Once you have read them, confirm with a one-line summary:
-"[Client name] — [vertical] — [weekly sessions]/week — [CVR]% CVR — [active test or 'no active test']"
+Once you have read everything, confirm with one line:
+"${name} — ${vert} — [X sessions/week] — [X% CVR] — [active test or no active test]"
 
 Then wait for instructions.`;
 
+  console.log(`\n${C.dim}─────────────────────────────────────────${C.reset}`);
   console.log(prompt);
-  console.log();
+  console.log(`${C.dim}─────────────────────────────────────────${C.reset}\n`);
 }
+
