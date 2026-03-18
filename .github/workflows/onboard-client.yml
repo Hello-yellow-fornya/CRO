@@ -1,0 +1,108 @@
+name: Onboard New Client
+
+on:
+  workflow_dispatch:
+    inputs:
+      client:
+        description: 'Client slug (lowercase, no spaces — e.g. chelseapiers)'
+        required: true
+        type: string
+      url:
+        description: 'Primary website URL (homepage)'
+        required: true
+        type: string
+      client_name:
+        description: 'Display name (e.g. Chelsea Piers)'
+        required: true
+        type: string
+      vertical:
+        description: 'Vertical (leave as auto to let Phase 1 determine)'
+        required: false
+        type: choice
+        default: auto
+        options:
+          - auto
+          - leisure
+          - lead_gen
+          - ecommerce
+          - financial_services
+          - saas
+          - travel
+          - composite
+
+jobs:
+  onboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd tools && npm install
+
+      # ── Phase 1: Research — machine reads the client ───────────────────────
+      - name: Phase 1 — Client research
+        run: node tools/onboard/research.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+          VERTICAL_HINT: ${{ github.event.inputs.vertical }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      # ── Phase 2: Scaffold — create folder structure ────────────────────────
+      - name: Phase 2 — Scaffold client folder
+        run: node tools/onboard/scaffold.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+
+      # ── Phase 3: Extract design tokens ────────────────────────────────────
+      - name: Phase 3 — Extract design tokens
+        run: node tools/extract-tokens.js "${{ github.event.inputs.url }}" "${{ github.event.inputs.client }}"
+        continue-on-error: true
+
+      # ── Phase 4: Tag audit ─────────────────────────────────────────────────
+      - name: Phase 4 — Tag audit
+        run: node tools/audit/stage3-qa.js --client "${{ github.event.inputs.client }}" --url "${{ github.event.inputs.url }}"
+        continue-on-error: true
+
+      # ── Phase 5: Generate onboarding report ───────────────────────────────
+      - name: Phase 5 — Generate onboarding report
+        run: node tools/onboard/generate-report.js
+        env:
+          CLIENT: ${{ github.event.inputs.client }}
+          CLIENT_NAME: ${{ github.event.inputs.client_name }}
+          URL: ${{ github.event.inputs.url }}
+          VERTICAL: ${{ github.event.inputs.vertical }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      # ── Phase 6: Commit everything ─────────────────────────────────────────
+      - name: Phase 6 — Commit onboarding outputs
+        run: |
+          git config user.name "CRO OS Onboard Bot"
+          git config user.email "onboard@cro-os"
+          git add clients/${{ github.event.inputs.client }}/
+          git diff --staged --quiet || git commit -m "onboard: ${{ github.event.inputs.client_name }} — full setup $(date +%Y-%m-%d)"
+          git push
+
+      # ── Upload artifacts ────────────────────────────────────────────────────
+      - name: Upload onboarding artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-${{ github.event.inputs.client }}
+          path: |
+            clients/${{ github.event.inputs.client }}/research.md
+            clients/${{ github.event.inputs.client }}/onboarding-report.md
+            clients/${{ github.event.inputs.client }}/audit-stage3-*.csv
+            clients/${{ github.event.inputs.client }}/design-tokens.md

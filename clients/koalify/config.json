@@ -1,9 +1,16 @@
 {
-  "client": "koalify",
+  "client_slug": "koalify",
+  "client_name": "Koalify",
   "url": "https://koalify.com.au",
   "extractUrl": "https://koalify.com.au",
-  "vertical": "financial-services",
+  "scheduled_audit_url": "https://koalify.com.au",
+  "vertical": "financial_services",
+  "verticals": [
+    "financial_services"
+  ],
   "vwoImplemented": true,
   "ga4Implemented": true,
-  "notes": "Extract from homepage — purchase and refinance pages blocked by robots.txt"
+  "onboarded": "2026-03-17",
+  "phase1_complete": false,
+  "qa_selectors": {}
 }

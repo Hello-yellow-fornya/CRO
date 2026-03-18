@@ -1,9 +1,14 @@
 {
   "name": "cro-os-tools",
-  "version": "2.0.0",
-  "description": "CRO OS automation tools — fetch-based, no browser required",
+  "version": "2.1.0",
+  "description": "CRO OS automation tools",
   "scripts": {
-    "extract": "node extract-tokens.js"
+    "extract": "node extract-tokens.js",
+    "audit": "node audit/stage3-qa.js",
+    "research": "node onboard/research.js",
+    "onboard": "node onboard/scaffold.js"
   },
-  "dependencies": {}
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
 }

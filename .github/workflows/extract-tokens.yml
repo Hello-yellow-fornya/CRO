@@ -1,4 +1,5 @@
 name: Extract CSS Tokens
+
 on:
   push:
     paths:
@@ -13,18 +14,23 @@ on:
         description: 'Page URL to extract from'
         required: true
         type: string
+
 jobs:
   extract:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: Find changed client configs and extract tokens
         if: github.event_name == 'push'
         run: |
@@ -39,11 +45,13 @@ jobs:
             echo "Extracting tokens for $CLIENT from $URL"
             node tools/extract-tokens.js "$URL" "$CLIENT"
           done
+
       - name: Manual trigger extraction
         if: github.event_name == 'workflow_dispatch'
         run: |
           echo "Extracting tokens for ${{ inputs.client }} from ${{ inputs.url }}"
           node tools/extract-tokens.js "${{ inputs.url }}" "${{ inputs.client }}"
+
       - name: Commit and push extracted tokens
         run: |
           git config --local user.email "cro-os-bot@users.noreply.github.com"

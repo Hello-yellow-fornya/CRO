@@ -1,5 +1,7 @@
 # Client Scoring Config — Powerleague
+
 ## Conversion Weighting
+
 | Conversion event | Weight |
 |---|---|
 | Golden Boot booking | 1.0 — highest |
@@ -7,7 +9,9 @@
 | Pitch and Play booking | 0.5 |
 | Booking flow started | 0.3 |
 | Location search completed | 0.2 |
+
 ## Test Duration Config
+
 | Parameter | Value |
 |---|---|
 | Min detectable effect default | 10% |
@@ -15,12 +19,16 @@
 | Statistical power | 80% |
 | Amber flag | More than 6 weeks |
 | Red flag | More than 8 weeks |
+
 ## Priority Goals
+
 | Period | Priority |
 |---|---|
 | Q1/Q2 2026 | Kids party bookings — new packages launched Feb 2026 |
 | Ongoing | Mobile conversion rate |
+
 ## Seasonal Blackouts
+
 | Period | Reason |
 |---|---|
 | Late August | Low traffic — school holidays |

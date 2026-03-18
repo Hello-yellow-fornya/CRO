@@ -1,9 +1,33 @@
 {
-  "client": "powerleague",
-  "url": "https://www.powerleague.com",
+  "client_slug": "powerleague",
+  "client_name": "Powerleague",
   "extractUrl": "https://www.powerleague.com/football-birthday-party",
-  "vertical": "leisure-sports",
-  "vwoImplemented": true,
-  "ga4Implemented": true,
-  "notes": "Use football-birthday-party page for token extraction — most representative of design system"
+  "vertical": "composite",
+  "verticals": ["leisure", "lead_gen"],
+  "funnels": {
+    "transactional": {
+      "label": "Direct booking",
+      "primary_kpi": "purchase",
+      "entry_urls": ["/football-birthday-party", "/book"],
+      "description": "User selects package, chooses date and location, completes payment"
+    },
+    "lead": {
+      "label": "Enquiry / lead",
+      "primary_kpi": "generate_lead",
+      "entry_urls": ["/contact", "/enquiry", "/party-enquiry"],
+      "description": "User submits an enquiry form rather than booking directly"
+    }
+  },
+  "shared_audience": true,
+  "onboarded": "2026-03-18",
+  "scheduled_audit_url": "https://www.powerleague.com/football-birthday-party",
+  "qa_selectors": {
+    "select_package": "[data-package-select], .package-select-btn, button[class*='package'], .booking-cta",
+    "open_date_picker": "[data-date-picker], .date-picker-trigger, input[type='date']",
+    "select_location": "[data-location-select], .location-select, select[name*='location']",
+    "begin_checkout": "[data-checkout], .checkout-btn, button[class*='checkout']",
+    "click_product": ".package-card a, .package-title a, [data-package-id]",
+    "open_form": "button[class*='enquire'], a[href*='enquiry'], .enquiry-cta",
+    "submit_form": "form[class*='enquiry'] button[type='submit'], .enquiry-form button[type='submit']"
+  }
 }
