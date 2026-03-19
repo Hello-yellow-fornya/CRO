@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Birthday Parties — Powerleague</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+
+/* ── Reset + Base ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:   #00A651;
+  --navy:    #0D1B2A;
+  --white:   #FFFFFF;
+  --offwhite:#F5F5F0;
+  --grey:    #6B7280;
+  --grey-lt: #E8E8E4;
+  --font:    'League Spartan', sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 16px;
+  color: var(--navy);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; }
+a   { color: inherit; text-decoration: none; }
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Nav (control — unchanged) ───────────────────────────────────────── */
+.nav {
+  background: var(--navy);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.nav__logo {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--white);
+  text-transform: uppercase;
+}
+.nav__logo span { color: var(--green); }
+.nav__links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav__links a {
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav__links a:hover { color: var(--white); }
+
+/* ── HERO (VARIATION — location finder leads) ────────────────────────── */
+.hero {
+  background: var(--navy);
+  min-height: 560px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 64px;
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle grass texture strip at bottom */
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--green);
+}
+
+.hero__content {
+  padding-left: 24px;
+}
+
+/* Eyebrow label */
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+.hero__eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+.hero__heading {
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.hero__heading em {
+  font-style: normal;
+  color: var(--green);
+}
+
+/* Social proof stat — moved here from below fold */
+.hero__proof {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.hero__proof-stat {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--green);
+  line-height: 1;
+}
+.hero__proof-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.4;
+  max-width: 160px;
+}
+
+/* ── Postcode finder — THE primary CTA ──────────────────────────────── */
+.hero__finder {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 24px;
+}
+.hero__finder-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.hero__finder-row {
+  display: flex;
+  gap: 8px;
+}
+.hero__finder-input {
+  flex: 1;
+  height: 48px;
+  border: 2px solid var(--grey-lt);
+  border-radius: 4px;
+  padding: 0 16px;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.hero__finder-input::placeholder {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--grey);
+}
+.hero__finder-input:focus { border-color: var(--green); }
+
+.hero__finder-btn {
+  height: 48px;
+  padding: 0 24px;
+  background: var(--green);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.hero__finder-btn:hover { background: #008f46; }
+
+.hero__finder-location {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--grey);
+  text-align: center;
+}
+.hero__finder-location a {
+  color: var(--navy);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Nearest venue result — shown after postcode entry */
+.hero__venue-result {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f0faf4;
+  border: 1px solid #b3e6c8;
+  border-radius: 4px;
+  display: none; /* shown via JS on postcode entry */
+}
+.hero__venue-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.hero__venue-meta {
+  font-size: 13px;
+  color: var(--grey);
+}
+.hero__venue-meta strong { color: var(--green); }
+
+/* Hero image side */
+.hero__image {
+  position: relative;
+  padding-right: 24px;
+}
+.hero__img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Floating trust badge on image */
+.hero__badge {
+  position: absolute;
+  bottom: 24px;
+  left: -16px;
+  background: var(--white);
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero__badge-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.hero__badge-text {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--navy);
+  line-height: 1.3;
+}
+.hero__badge-sub {
+  font-weight: 400;
+  color: var(--grey);
+  display: block;
+}
+
+/* ── Trust bar ────────────────────────────────────────────────────────── */
+.trust-bar {
+  background: var(--offwhite);
+  padding: 16px 0;
+  border-bottom: 1px solid var(--grey-lt);
+}
+.trust-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+.trust-item__icon {
+  width: 20px;
+  height: 20px;
+  color: var(--green);
+  font-size: 18px;
+}
+
+/* ── Packages section ─────────────────────────────────────────────────── */
+.packages {
+  padding: 80px 0;
+  background: var(--white);
+}
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 8px;
+  text-align: center;
+}
+.section-heading {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  text-transform: uppercase;
+  color: var(--navy);
+  text-align: center;
+  margin-bottom: 8px;
+}
+.section-sub {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--grey);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.packages__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.pkg {
+  border: 2px solid var(--grey-lt);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.pkg:hover {
+  border-color: var(--green);
+  transform: translateY(-2px);
+}
+.pkg--featured {
+  border-color: var(--green);
+  border-width: 2px;
+}
+
+/* Most popular badge */
+.pkg__badge {
+  background: var(--green);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 6px 0;
+}
+
+.pkg__header {
+  padding: 24px 24px 16px;
+  background: var(--navy);
+  color: var(--white);
+}
+.pkg__name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 4px;
+}
+.pkg__headline {
+  font-size: 20px;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+.pkg__price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.pkg__price-amount {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--green);
+  line-height: 1;
+}
+.pkg__price-unit {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.6);
+}
+.pkg__price-min {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+
+.pkg__body {
+  padding: 20px 24px 24px;
+}
+
+/* Emotional benefit — leads the card body */
+.pkg__benefit {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 16px;
+  line-height: 1.4;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--grey-lt);
+}
+
+/* Feature list — collapsed to 4 max */
+.pkg__features {
+  list-style: none;
+  margin-bottom: 16px;
+}
+.pkg__features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--grey);
+  padding: 5px 0;
+  line-height: 1.4;
+}
+.pkg__features li::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* "See all" toggle */
+.pkg__toggle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  text-decoration: underline;
+  margin-bottom: 20px;
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font);
+}
+
+/* Split payment callout — surfaced here not at checkout */
+.pkg__split {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--grey);
+  background: var(--offwhite);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+.pkg__split strong { color: var(--navy); }
+
+.pkg__cta {
+  display: block;
+  width: 100%;
+  height: 48px;
+  background: var(--green);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pkg__cta:hover { background: #008f46; }
+.pkg--featured .pkg__cta { background: var(--green); }
+
+/* ── Social proof section ─────────────────────────────────────────────── */
+.proof {
+  background: var(--navy);
+  padding: 64px 0;
+}
+.proof__grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 64px;
+  align-items: center;
+}
+.proof__stat-block { text-align: center; }
+.proof__stat {
+  font-size: 80px;
+  font-weight: 900;
+  color: var(--green);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.proof__stat-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.7);
+  margin-top: 8px;
+}
+.proof__testimonials {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.testimonial {
+  border-left: 3px solid var(--green);
+  padding-left: 20px;
+}
+.testimonial__quote {
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+.testimonial__author {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+/* ── Coaches section ──────────────────────────────────────────────────── */
+.coaches {
+  padding: 80px 0;
+  background: var(--offwhite);
+}
+.coaches__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.coaches__content {}
+.coaches__text {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--grey);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.coaches__accred {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.coaches__accred::before {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--green);
+  color: var(--white);
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.coaches__img-block {
+  border-radius: 8px;
+  overflow: hidden;
+}
+.coaches__img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+}
+
+/* ── Brands bar ───────────────────────────────────────────────────────── */
+.brands {
+  padding: 40px 0;
+  background: var(--white);
+  border-top: 1px solid var(--grey-lt);
+}
+.brands__label {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 24px;
+}
+.brands__logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+.brand-logo {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--grey);
+  opacity: 0.6;
+}
+
+/* ── FAQ ──────────────────────────────────────────────────────────────── */
+.faq {
+  padding: 80px 0;
+  background: var(--offwhite);
+}
+.faq__list {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.faq__item {
+  border-bottom: 1px solid var(--grey-lt);
+}
+.faq__q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  gap: 16px;
+}
+.faq__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--green);
+  font-size: 20px;
+  font-weight: 400;
+  transition: transform 0.2s;
+}
+.faq__a {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--grey);
+  line-height: 1.7;
+  padding-bottom: 20px;
+  display: none;
+}
+
+/* ── Mobile CTA bar ───────────────────────────────────────────────────── */
+.sticky-cta {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--navy);
+  padding: 12px 16px;
+  z-index: 200;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 3px solid var(--green);
+}
+.sticky-cta__text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+}
+.sticky-cta__sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.6);
+}
+.sticky-cta__btn {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 20px;
+  background: var(--green);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 48px 0 64px;
+    min-height: auto;
+  }
+  .hero__content { padding: 0 16px; }
+  .hero__image { display: none; }
+  .packages__grid { grid-template-columns: 1fr; gap: 16px; }
+  .proof__grid { grid-template-columns: 1fr; gap: 40px; }
+  .coaches__inner { grid-template-columns: 1fr; }
+  .coaches__img-block { order: -1; }
+  .trust-bar__inner { gap: 24px; }
+  .sticky-cta { display: flex; }
+  body { padding-bottom: 72px; }
+}
+
+@media (max-width: 480px) {
+  .hero__finder-row { flex-direction: column; }
+  .hero__finder-btn { height: 48px; }
+}
+
+/* ── CRO OS annotation (dev only) ─────────────────────────────────────── */
+.cro-label {
+  display: inline-block;
+  background: #f59e0b;
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- Nav (unchanged from control) -->
+<nav class="nav">
+  <div class="nav__inner">
+    <div class="nav__logo">Power<span>league</span></div>
+    <ul class="nav__links">
+      <li><a href="#">Kids Parties</a></li>
+      <li><a href="#">Camps</a></li>
+      <li><a href="#">Venues</a></li>
+      <li><a href="#">Book</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HERO — VARIATION CHANGE #1                                 -->
+<!-- Control: dual CTAs, no location, stat buried below fold   -->
+<!-- Variation: postcode finder IS the CTA, stat in hero       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;width:100%;">
+
+    <div class="hero__content">
+      <div class="cro-label">Variation A — Location First</div>
+      <div class="hero__eyebrow">Football Birthday Parties</div>
+
+      <h1 class="hero__heading">
+        The party<br><em>they'll never</em><br>forget.
+      </h1>
+
+      <!-- VARIATION CHANGE #2: 93% stat moved here from below fold -->
+      <div class="hero__proof">
+        <div class="hero__proof-stat">93%</div>
+        <div class="hero__proof-text">of parents recommend us. Rated 5 stars by 10,000+ families.</div>
+      </div>
+
+      <!-- VARIATION CHANGE #3: postcode finder replaces dual CTAs -->
+      <div class="hero__finder">
+        <div class="hero__finder-label">Find your nearest venue</div>
+        <div class="hero__finder-row">
+          <input
+            class="hero__finder-input"
+            type="text"
+            placeholder="Enter postcode"
+            id="postcode-input"
+            maxlength="8"
+            aria-label="Your postcode"
+          >
+          <button class="hero__finder-btn" onclick="showVenueResult()">Find venues</button>
+        </div>
+        <div class="hero__finder-location">
+          Or <a onclick="showVenueResult()">use my location</a>
+        </div>
+
+        <!-- Venue result — shown after postcode entry -->
+        <div class="hero__venue-result" id="venue-result">
+          <div class="hero__venue-name">Powerleague Manchester City Centre</div>
+          <div class="hero__venue-meta">
+            2.1 miles away &nbsp;·&nbsp;
+            <strong>Dates available from April</strong> &nbsp;·&nbsp;
+            3 packages from £9.95/child
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__image">
+      <img
+        class="hero__img"
+        src="https://www.powerleague.com/wp-content/uploads/2023/02/2Y8A7113-1024x681-1.webp"
+        alt="Kids celebrating at a Powerleague football birthday party"
+        width="560"
+        height="400"
+        loading="eager"
+      >
+      <!-- Trust badge on image -->
+      <div class="hero__badge">
+        <div class="hero__badge-icon">★</div>
+        <div class="hero__badge-text">
+          5 stars
+          <span class="hero__badge-sub">10,000+ parties run</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Trust bar -->
+<div class="trust-bar">
+  <div class="trust-bar__inner container">
+    <div class="trust-item">
+      <span class="trust-item__icon">✓</span>
+      300+ venues UK &amp; Ireland
+    </div>
+    <div class="trust-item">
+      <span class="trust-item__icon">✓</span>
+      FA-qualified coaches
+    </div>
+    <div class="trust-item">
+      <span class="trust-item__icon">✓</span>
+      Split payment available
+    </div>
+    <div class="trust-item">
+      <span class="trust-item__icon">✓</span>
+      2 hours fully coached
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PACKAGES — VARIATION CHANGES #4, #5, #6                   -->
+<!-- #4: Feature lists capped at 4, "See all" toggle           -->
+<!-- #5: Emotional benefit leads each card                     -->
+<!-- #6: Split payment visible at package level                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="packages">
+  <div class="container">
+    <div class="section-label">Choose your package</div>
+    <h2 class="section-heading">Pick the perfect party</h2>
+    <p class="section-sub">All packages include 2 hours of coached football, food and a party host.<br>Minimum 10 children.</p>
+
+    <div class="packages__grid">
+
+      <!-- Package 1: Pitch & Play -->
+      <div class="pkg">
+        <div class="pkg__header">
+          <div class="pkg__name">Pitch & Play</div>
+          <!-- VARIATION #5: Emotional benefit leads -->
+          <div class="pkg__headline">A brilliant<br>football party</div>
+          <div class="pkg__price">
+            <div class="pkg__price-amount">£9.95</div>
+            <div class="pkg__price-unit">/ child</div>
+          </div>
+          <div class="pkg__price-min">Min. £99.50 (10 children)</div>
+        </div>
+        <div class="pkg__body">
+          <div class="pkg__benefit">
+            Everything they need for a great party — coached football, food, and a party host to run the day.
+          </div>
+          <!-- VARIATION #4: Capped at 4 bullets -->
+          <ul class="pkg__features">
+            <li>2 hours coached football</li>
+            <li>Burger &amp; chips or pizza</li>
+            <li>Party host included</li>
+            <li>Private party room</li>
+          </ul>
+          <button class="pkg__toggle" onclick="toggleFeatures(this)">See all inclusions ↓</button>
+          <ul class="pkg__features pkg__features--hidden" style="display:none">
+            <li>Soft drinks included</li>
+            <li>Happy Birthday banner</li>
+          </ul>
+          <!-- VARIATION #6: Split payment surfaced here -->
+          <div class="pkg__split">
+            <strong>Split payment available</strong> — pay a deposit now, balance later
+          </div>
+          <button class="pkg__cta" onclick="handleBook('pitch-and-play')">Book this party</button>
+        </div>
+      </div>
+
+      <!-- Package 2: Silver Strike — FEATURED -->
+      <div class="pkg pkg--featured">
+        <div class="pkg__badge">Most popular</div>
+        <div class="pkg__header">
+          <div class="pkg__name">Silver Strike</div>
+          <div class="pkg__headline">The one they'll<br>talk about</div>
+          <div class="pkg__price">
+            <div class="pkg__price-amount">£18.50</div>
+            <div class="pkg__price-unit">/ child</div>
+          </div>
+          <div class="pkg__price-min">Min. £185 (10 children)</div>
+        </div>
+        <div class="pkg__body">
+          <div class="pkg__benefit">
+            Everything in Pitch &amp; Play, plus Match Attax cards and a goody bag every child will love.
+          </div>
+          <ul class="pkg__features">
+            <li>Everything in Pitch &amp; Play</li>
+            <li>Match Attax card pack for each child</li>
+            <li>Personalised goody bag</li>
+            <li>Gold birthday medal</li>
+          </ul>
+          <button class="pkg__toggle" onclick="toggleFeatures(this)">See all inclusions ↓</button>
+          <ul class="pkg__features pkg__features--hidden" style="display:none">
+            <li>Team photo printed</li>
+            <li>Birthday child in Nike kit</li>
+          </ul>
+          <div class="pkg__split">
+            <strong>Split payment available</strong> — pay a deposit now, balance later
+          </div>
+          <button class="pkg__cta" onclick="handleBook('silver-strike')">Book this party</button>
+        </div>
+      </div>
+
+      <!-- Package 3: Golden Boot -->
+      <div class="pkg">
+        <div class="pkg__header">
+          <div class="pkg__name">Golden Boot</div>
+          <div class="pkg__headline">The ultimate<br>football birthday</div>
+          <div class="pkg__price">
+            <div class="pkg__price-amount">£28.50</div>
+            <div class="pkg__price-unit">/ child</div>
+          </div>
+          <div class="pkg__price-min">Min. £285 (10 children)</div>
+        </div>
+        <div class="pkg__body">
+          <div class="pkg__benefit">
+            The full VIP treatment — every child goes home with a Nike kit, a medal and memories that last.
+          </div>
+          <ul class="pkg__features">
+            <li>Everything in Silver Strike</li>
+            <li>Nike kit for every child</li>
+            <li>Professional team photo</li>
+            <li>Golden Boot trophy for birthday child</li>
+          </ul>
+          <button class="pkg__toggle" onclick="toggleFeatures(this)">See all inclusions ↓</button>
+          <ul class="pkg__features pkg__features--hidden" style="display:none">
+            <li>Lucozade Sport for all</li>
+            <li>Costa hot drinks for parents</li>
+          </ul>
+          <div class="pkg__split">
+            <strong>Split payment available</strong> — pay a deposit now, balance later
+          </div>
+          <button class="pkg__cta" onclick="handleBook('golden-boot')">Book this party</button>
+        </div>
+      </div>
+
+    </div><!-- /packages__grid -->
+  </div>
+</section>
+
+<!-- Social proof section -->
+<section class="proof">
+  <div class="container">
+    <div class="proof__grid">
+      <div class="proof__stat-block">
+        <div class="proof__stat">93%</div>
+        <div class="proof__stat-label">of parents would recommend a Powerleague party</div>
+      </div>
+      <div class="proof__testimonials">
+        <div class="testimonial">
+          <div class="testimonial__quote">"My son hasn't stopped talking about it. The coaches were brilliant with the kids and the whole thing ran so smoothly. Best party we've ever done."</div>
+          <div class="testimonial__author">Sarah M. — party for 14 children, Manchester</div>
+        </div>
+        <div class="testimonial">
+          <div class="testimonial__quote">"I was nervous organising it but it genuinely took the stress away. They handled everything. My daughter was absolutely made up."</div>
+          <div class="testimonial__author">James T. — Silver Strike party, Birmingham</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Coaches section -->
+<section class="coaches">
+  <div class="container">
+    <div class="coaches__inner">
+      <div class="coaches__content">
+        <div class="section-label">Our coaches</div>
+        <h2 class="section-heading" style="text-align:left;">Coached by the best</h2>
+        <p class="coaches__text">Every Powerleague party is run by FA-qualified coaches who know how to keep 10–15 energetic kids engaged, safe and having the time of their lives. No stressed parents. No chaos. Just brilliant football.</p>
+        <div class="coaches__accred">FA-qualified coaches at every party</div>
+        <div class="coaches__accred" style="margin-top:12px;">DBS-checked, safeguarding trained</div>
+      </div>
+      <div class="coaches__img-block">
+        <img
+          class="coaches__img"
+          src="https://www.powerleague.com/wp-content/uploads/2022/09/MicrosoftTeams-image-3.webp"
+          alt="FA-qualified Powerleague coach with children"
+          width="560"
+          height="320"
+          loading="lazy"
+        >
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Brands bar -->
+<section class="brands">
+  <div class="container">
+    <div class="brands__label">Trusted by great brands</div>
+    <div class="brands__logos">
+      <span class="brand-logo">Nike</span>
+      <span class="brand-logo">Match Attax</span>
+      <span class="brand-logo">Chicago Town</span>
+      <span class="brand-logo">Lucozade</span>
+      <span class="brand-logo">Costa</span>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="container">
+    <div class="section-label">Questions</div>
+    <h2 class="section-heading">Frequently asked</h2>
+    <div class="faq__list" style="margin-top:40px">
+
+      <div class="faq__item">
+        <button class="faq__q" onclick="toggleFAQ(this)">
+          How many children do I need?
+          <span class="faq__icon">+</span>
+        </button>
+        <div class="faq__a">All Powerleague parties require a minimum of 10 children. There's no upper limit — we can accommodate larger groups across multiple pitches.</div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" onclick="toggleFAQ(this)">
+          How far in advance should I book?
+          <span class="faq__icon">+</span>
+        </button>
+        <div class="faq__a">We recommend booking at least 4–6 weeks in advance, especially for weekend dates which fill quickly. Some venues are available at shorter notice — enter your postcode above to check availability.</div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" onclick="toggleFAQ(this)">
+          Can I split the payment?
+          <span class="faq__icon">+</span>
+        </button>
+        <div class="faq__a">Yes — you can pay a deposit to secure your booking and pay the balance closer to the party date. Split payment is available on all packages.</div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" onclick="toggleFAQ(this)">
+          What food is included?
+          <span class="faq__icon">+</span>
+        </button>
+        <div class="faq__a">All packages include a hot food option — burger and chips or pizza from Chicago Town — plus soft drinks for the children. Golden Boot also includes Lucozade Sport and Costa drinks for parents.</div>
+      </div>
+
+      <div class="faq__item">
+        <button class="faq__q" onclick="toggleFAQ(this)">
+          What ages are the parties for?
+          <span class="faq__icon">+</span>
+        </button>
+        <div class="faq__a">Our parties are designed for children aged 5–14. Our coaches adapt the session to the age group, so both younger and older children get an experience pitched right for them.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Mobile sticky CTA -->
+<div class="sticky-cta" id="sticky-cta">
+  <div class="sticky-cta__text">
+    Football Birthday Parties
+    <span class="sticky-cta__sub">From £9.95 per child · Split pay available</span>
+  </div>
+  <button class="sticky-cta__btn" onclick="document.getElementById('postcode-input').scrollIntoView({behavior:'smooth'});document.getElementById('postcode-input').focus()">
+    Find venues
+  </button>
+</div>
+
+<script>
+// ── Postcode finder demo ──────────────────────────────────────────────────────
+function showVenueResult() {
+  var result = document.getElementById('venue-result');
+  result.style.display = 'block';
+  // In production: call booking API with postcode, return nearest venue + availability
+  // GA4 event: gtag('event', 'location_selected', { venue: '...', postcode: '...' })
+}
+
+document.getElementById('postcode-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') showVenueResult();
+});
+
+// ── Package feature toggle ────────────────────────────────────────────────────
+function toggleFeatures(btn) {
+  var hidden = btn.nextElementSibling;
+  var isOpen = hidden.style.display !== 'none';
+  hidden.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? 'See all inclusions ↓' : 'See fewer ↑';
+}
+
+// ── Book CTA ─────────────────────────────────────────────────────────────────
+function handleBook(pkg) {
+  // GA4 event: gtag('event', 'package_selected', { package_name: pkg })
+  // Then: redirect to /booking/select-location with package pre-selected
+  alert('Booking flow: ' + pkg + '\n\nIn production: redirect to /booking/select-location?package=' + pkg);
+}
+
+// ── FAQ toggle ────────────────────────────────────────────────────────────────
+function toggleFAQ(btn) {
+  var answer = btn.nextElementSibling;
+  var icon   = btn.querySelector('.faq__icon');
+  var isOpen = answer.style.display === 'block';
+  answer.style.display = isOpen ? 'none' : 'block';
+  icon.textContent     = isOpen ? '+' : '−';
+}
+
+// ── Mobile sticky CTA — show after scroll ────────────────────────────────────
+var stickyCta   = document.getElementById('sticky-cta');
+var heroSection = document.querySelector('.hero');
+window.addEventListener('scroll', function() {
+  if (window.innerWidth <= 768) {
+    var heroBottom = heroSection.getBoundingClientRect().bottom;
+    stickyCta.style.display = heroBottom < 0 ? 'flex' : 'none';
+  }
+}, { passive: true });
+</script>
+
+</body>
+</html>
