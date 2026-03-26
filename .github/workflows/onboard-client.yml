@@ -29,6 +29,11 @@ on:
           - saas
           - travel
           - composite
+      verticals:
+        description: 'For composite clients — comma-separated list (e.g. leisure,lead_gen). Leave blank for single vertical.'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   onboard:
@@ -85,6 +90,7 @@ jobs:
           CLIENT: ${{ github.event.inputs.client }}
           CLIENT_NAME: ${{ github.event.inputs.client_name }}
           URL: ${{ github.event.inputs.url }}
+          VERTICALS: ${{ github.event.inputs.verticals }}
 
       # ── Phase 3: Extract design tokens ────────────────────────────────────
       - name: Phase 3 — Extract design tokens

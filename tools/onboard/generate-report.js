@@ -294,6 +294,16 @@ If audit was not run, state this clearly and list what must be audited manually.
 
 ---
 
+## 3b. Composite funnel map (ONLY if composite vertical)
+If this is a composite client, map out how the two funnels relate:
+- Do users enter both funnels from the same pages, or different entry points?
+- Is the lead funnel a fallback for users who aren't ready to transact?
+- Are returning users more likely to use the transactional funnel?
+- How should the MDE calculator treat shared traffic — are the two funnels competing for the same sessions or additive?
+- What does a "blended" CVR hide in this context — and why should it never be reported as a single number?
+
+---
+
 ## 4. GA4 funnel setup instructions
 
 [Fresh analysis from funnel-kpis.md framework, applied to this client's specific funnel map from Phase 1.

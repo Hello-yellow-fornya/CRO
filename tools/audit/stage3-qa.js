@@ -332,24 +332,32 @@ async function runAudit(client, url) {
 
   // Load client config to get vertical
   let vertical = 'ecommerce';
+  let verticals = [vertical];
+  let isComposite = false;
+
   try {
     const config = JSON.parse(fs.readFileSync(`clients/${client}/config.json`, 'utf8'));
-    if (config.vertical === 'composite' && config.verticals && config.verticals.length > 0) {
-      vertical = config.verticals[0];
-      console.log(`Composite client — auditing against primary vertical: ${vertical}`);
-    } else if (config.vertical && config.vertical !== 'pending_phase1') {
-      vertical = config.vertical;
-    } else if (config.vertical === 'pending_phase1') {
-      vertical = 'ecommerce';
-      console.warn('WARNING: vertical is pending_phase1 — audit running against ecommerce schema as fallback. Update config.json after Phase 1 completes.');
-    } else {
-      vertical = config.vertical || 'ecommerce';
-    }
+    vertical = config.vertical || 'ecommerce';
+    verticals = config.verticals || [vertical];
+    isComposite = vertical === 'composite' || verticals.length > 1;
   } catch (e) {
     console.log('No client config found — defaulting to ecommerce vertical');
   }
 
-  const schemas = EVENT_SCHEMAS[vertical] || EVENT_SCHEMAS.ecommerce;
+  // For composite verticals, merge event schemas from all constituent verticals
+  // and deduplicate by event name (transactional events take priority)
+  let schemas;
+  if (isComposite) {
+    const seen = new Set();
+    schemas = verticals.flatMap(v => (EVENT_SCHEMAS[v] || EVENT_SCHEMAS.ecommerce)).filter(s => {
+      if (seen.has(s.event)) return false;
+      seen.add(s.event);
+      return true;
+    });
+    console.log(`Composite vertical: ${verticals.join(' + ')} — ${schemas.length} events to check`);
+  } else {
+    schemas = EVENT_SCHEMAS[vertical] || EVENT_SCHEMAS.ecommerce;
+  }
   console.log(`\nCRO OS — Stage 3 Live QA Audit`);
   console.log(`Client: ${client} | URL: ${url} | Vertical: ${vertical}\n`);
 

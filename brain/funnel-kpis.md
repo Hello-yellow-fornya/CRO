@@ -244,3 +244,52 @@ These are the expected pass rates for each stage transition, used as the denomin
 **Intent sensitivity varies by stage.** Some stages are highly sensitive to intent — cold traffic and high-intent traffic behave very differently. Other stages are low sensitivity — once a user reaches that point, intent is demonstrated and the pass rate range narrows. The driver of underperformance at low-sensitivity stages is almost always UX or friction, not audience quality.
 
 **Weighting reflects funnel position.** The final conversion stage always carries the highest weight (1.5×). The highest drop-off stage for a given client gets 1.2×. Other stages are 1.0×.
+
+---
+
+## Composite Verticals — Hybrid Funnel Clients
+
+Some clients have two distinct conversion paths running simultaneously from the same traffic pool. The most common pattern is a transactional funnel (direct booking or purchase) running alongside a lead funnel (enquiry form, callback request, quote). Powerleague is an example: users can book directly or submit an enquiry.
+
+### Why this requires separate treatment
+
+A blended CVR across both funnels is meaningless. A user who submits an enquiry has not failed to convert — they have converted on the lead funnel. Reporting them as a bounce or non-conversion against the booking funnel misrepresents both funnels.
+
+### Rules for composite funnel analysis
+
+**Rule 1 — Two separate funnel explorations in GA4**
+Build one funnel for the transactional path and a completely separate funnel for the lead path. Never merge them.
+
+**Rule 2 — Two separate primary KPIs**
+| Funnel | Primary KPI | Do not use |
+|---|---|---|
+| Transactional | `purchase` event | Blended CVR |
+| Lead | `generate_lead` event | Blended CVR |
+
+**Rule 3 — Shared traffic, separate analysis**
+Both funnels draw from the same weekly session pool. When calculating MDE:
+- If the test only affects one funnel: use that funnel's session volume and CVR
+- If the test affects shared pages (e.g. homepage): split the traffic estimate between funnels based on observed funnel entry rates
+- Never use total site sessions as the denominator for a single-funnel test
+
+**Rule 4 — Audience overlap is an asset, not a problem**
+A user who entered the lead funnel but is now returning via email is a high-intent signal. Track funnel switching behaviour — users who first enquire then later book directly are your highest-value returning segment.
+
+**Rule 5 — Personalisation by funnel intent**
+The intent scoring model applies per funnel:
+- A new user from Meta who lands on the enquiry page is Tier 1 on the lead funnel
+- A returning user from email who lands on the booking page is Tier 5 on the transactional funnel
+- The same user can be different tiers on different funnels — score by the funnel they're currently in
+
+**Rule 6 — Report format for composite clients**
+Every report section must split by funnel:
+```
+Metric          | Transactional funnel | Lead funnel
+----------------|---------------------|-------------
+Weekly sessions | 4,200               | 800
+Conversions     | 67                  | 31
+CVR             | 1.60%               | 3.87%
+Top drop-off    | Stage 3→4           | Stage 4→5
+```
+
+Never show a single blended CVR to a composite client. It hides more than it reveals.
